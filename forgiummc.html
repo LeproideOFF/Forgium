@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ForgiumMC — PvP Faction</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Exo+2:wght@400;600;700;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#03060d;--bg2:#080f1c;--bg3:#0d1829;
+  --b1:#0f2540;--b2:#1a3a5c;
+  --blue:#00aaff;--blue2:#0077cc;
+  --neon:#00d4ff;--red:#ff2244;--gold:#ffcc00;--orange:#ff8c00;
+  --green:#00ff88;--purple:#8855ff;
+  --text:#c8e4ff;--tdim:#3a6080;--tmid:#7aaacf;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:"Exo 2",sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:radial-gradient(circle at 15% 15%,rgba(0,170,255,.07) 0%,transparent 45%),
+  radial-gradient(circle at 85% 85%,rgba(0,212,255,.04) 0%,transparent 45%),
+  linear-gradient(rgba(0,170,255,.022) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(0,170,255,.022) 1px,transparent 1px);
+  background-size:100%,100%,50px 50px,50px 50px;}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:9997;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.025) 2px,rgba(0,0,0,.025) 4px);}
+#particles{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;overflow:hidden;}
+.particle{position:absolute;animation:float-up linear infinite;opacity:0;}
+@keyframes float-up{0%{transform:translateY(110vh) rotate(0);opacity:0;}5%{opacity:.8;}95%{opacity:.3;}100%{transform:translateY(-10vh) rotate(360deg);opacity:0;}}
+
+/* NAV */
+nav{position:fixed;top:0;width:100%;z-index:1000;background:rgba(3,6,13,.97);backdrop-filter:blur(30px);border-bottom:1px solid var(--b2);height:64px;padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;}
+nav::after{content:"";position:absolute;bottom:-1px;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--blue),var(--neon),var(--blue),transparent);opacity:.5;}
+.logo{font-family:"Black Ops One",cursive;font-size:1.3rem;letter-spacing:4px;background:linear-gradient(135deg,var(--blue),var(--neon));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-decoration:none;filter:drop-shadow(0 0 8px rgba(0,170,255,.5));cursor:pointer;flex-shrink:0;}
+.nav-links{display:flex;gap:.1rem;list-style:none;flex-wrap:wrap;}
+.nav-links a{color:var(--tdim);text-decoration:none;font-weight:800;font-size:.75rem;letter-spacing:1.5px;text-transform:uppercase;padding:.4rem .65rem;border-radius:4px;transition:all .2s;border:1px solid transparent;cursor:pointer;white-space:nowrap;}
+.nav-links a:hover,.nav-links a.active{color:var(--neon);border-color:rgba(0,212,255,.35);background:rgba(0,170,255,.07);}
+.nav-disc{background:rgba(88,101,242,.15)!important;border-color:rgba(88,101,242,.4)!important;color:#7289da!important;}
+.nav-disc:hover{background:rgba(88,101,242,.25)!important;border-color:#7289da!important;}
+.nav-ip{font-family:"Share Tech Mono",monospace!important;color:var(--bg)!important;background:linear-gradient(135deg,var(--blue),var(--neon))!important;border:none!important;border-radius:5px!important;-webkit-text-fill-color:var(--bg)!important;box-shadow:0 0 18px rgba(0,170,255,.35);}
+.nav-ip:hover{box-shadow:0 0 30px rgba(0,212,255,.6)!important;transform:translateY(-1px);}
+
+.copy-toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(120px);background:linear-gradient(135deg,var(--blue),var(--neon));color:var(--bg);padding:.75rem 2rem;border-radius:6px;font-weight:800;font-size:.85rem;letter-spacing:2px;text-transform:uppercase;transition:transform .4s cubic-bezier(.34,1.56,.64,1);z-index:9999;}
+.copy-toast.show{transform:translateX(-50%) translateY(0);}
+
+/* PAGES */
+.page{display:none;min-height:calc(100vh - 64px);padding-top:64px;position:relative;z-index:2;}
+.page.active{display:block;}
+
+/* SECTION HEADER */
+.sec-head{padding:3.5rem 2rem 2rem;text-align:center;max-width:900px;margin:0 auto;}
+.sec-head h1{font-family:"Black Ops One",cursive;font-size:clamp(2rem,5vw,3.5rem);letter-spacing:4px;background:linear-gradient(135deg,#fff,var(--neon));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 20px rgba(0,212,255,.35));margin-bottom:.8rem;}
+.sec-head p{color:var(--tmid);font-size:1rem;font-weight:600;max-width:580px;margin:0 auto;}
+.divider{width:100px;height:2px;margin:1.2rem auto 0;background:linear-gradient(90deg,transparent,var(--blue),var(--neon),transparent);box-shadow:0 0 10px rgba(0,212,255,.4);}
+
+/* ══ HOME ══ */
+#home.active{display:flex;flex-direction:column;align-items:center;padding-top:64px;}
+.hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:3rem 2rem 4rem;min-height:calc(100vh - 64px);width:100%;}
+.eyebrow{display:flex;align-items:center;gap:.8rem;margin-bottom:1.5rem;animation:fi .6s ease both;}
+.eline{width:40px;height:1px;background:var(--blue);opacity:.5;}
+.etxt{font-weight:800;font-size:.72rem;letter-spacing:5px;text-transform:uppercase;color:var(--blue);text-shadow:0 0 12px rgba(0,170,255,.7);}
+.htitle{font-family:"Black Ops One",cursive;font-size:clamp(4rem,11vw,9rem);line-height:.88;letter-spacing:6px;background:linear-gradient(180deg,#fff 0%,var(--neon) 55%,var(--blue2) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 40px rgba(0,170,255,.45));animation:fi .8s .1s ease both;margin-bottom:.3rem;}
+.hpvp{font-family:"Black Ops One",cursive;font-size:clamp(1rem,3vw,2rem);letter-spacing:8px;color:var(--red);text-shadow:0 0 20px rgba(255,34,68,.7);animation:fi .8s .2s ease both;margin-bottom:2.5rem;}
+.hdesc{font-size:1.05rem;font-weight:600;color:var(--tmid);letter-spacing:.8px;margin-bottom:2rem;animation:fi .8s .3s ease both;max-width:520px;line-height:1.6;}
+
+/* DISCORD BANNER */
+.disc-banner{display:inline-flex;align-items:center;gap:.8rem;background:rgba(88,101,242,.1);border:1px solid rgba(88,101,242,.4);border-radius:10px;padding:.8rem 1.8rem;margin-bottom:2.5rem;cursor:pointer;text-decoration:none;transition:all .3s;animation:fi .8s .35s ease both;}
+.disc-banner:hover{background:rgba(88,101,242,.2);border-color:#7289da;transform:translateY(-2px);box-shadow:0 0 25px rgba(88,101,242,.3);}
+.disc-banner svg{width:24px;height:24px;fill:#7289da;flex-shrink:0;}
+.disc-banner span{font-family:"Exo 2",sans-serif;font-weight:800;font-size:.9rem;letter-spacing:2px;text-transform:uppercase;color:#7289da;}
+
+.ip-wrap{display:flex;flex-direction:column;align-items:center;gap:.5rem;margin-bottom:3rem;animation:fi .8s .4s ease both;}
+.ip-lbl{font-weight:800;font-size:.68rem;letter-spacing:4px;text-transform:uppercase;color:var(--tdim);}
+.ip-box{font-family:"Share Tech Mono",monospace;font-size:clamp(1.1rem,3vw,1.7rem);letter-spacing:4px;color:var(--neon);background:var(--bg2);border:1px solid var(--b2);border-radius:8px;padding:.95rem 2.5rem;cursor:pointer;position:relative;overflow:hidden;transition:all .3s;box-shadow:0 0 30px rgba(0,170,255,.12);}
+.ip-box::before{content:"";position:absolute;top:0;left:-100%;width:50%;height:100%;background:linear-gradient(90deg,transparent,rgba(0,212,255,.1),transparent);animation:shine 3s ease-in-out infinite;}
+@keyframes shine{0%{left:-100%;}100%{left:200%;}}
+.ip-box:hover{border-color:var(--neon);box-shadow:0 0 50px rgba(0,212,255,.35);color:#fff;transform:translateY(-2px);}
+.ip-hint{font-size:.7rem;color:var(--tdim);letter-spacing:1px;}
+.hstats{display:flex;gap:3rem;flex-wrap:wrap;justify-content:center;margin-bottom:3rem;animation:fi .8s .5s ease both;}
+.hstat{text-align:center;}
+.snum{font-family:"Black Ops One",cursive;font-size:2.4rem;background:linear-gradient(135deg,var(--neon),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 10px rgba(0,212,255,.4));}
+.slbl{font-size:.68rem;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--tdim);margin-top:.2rem;}
+.hfeats{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1px;max-width:900px;width:100%;border:1px solid var(--b2);border-radius:12px;overflow:hidden;animation:fi .8s .6s ease both;}
+.feat{background:var(--bg2);padding:1.8rem 1.4rem;text-align:center;transition:all .3s;position:relative;border-right:1px solid var(--b2);}
+.feat:last-child{border-right:none;}
+.feat::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--blue),var(--neon),transparent);opacity:0;transition:opacity .3s;}
+.feat:hover{background:rgba(0,170,255,.04);}
+.feat:hover::before{opacity:1;}
+.ficon{font-size:2rem;display:block;margin-bottom:.7rem;}
+.feat h3{font-family:"Black Ops One",cursive;font-size:.82rem;color:var(--blue);letter-spacing:2px;margin-bottom:.5rem;}
+.feat p{font-size:.8rem;color:var(--tdim);line-height:1.6;font-weight:600;}
+@keyframes fi{from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:translateY(0);}}
+
+/* ══ RÈGLEMENT ══ */
+.rules-wrap{max-width:960px;margin:0 auto;padding:1rem 2rem 3rem;}
+.rsec-title{font-family:"Black Ops One",cursive;font-size:.82rem;color:var(--neon);letter-spacing:3px;padding:.8rem 1.5rem;background:linear-gradient(90deg,rgba(0,212,255,.06),transparent);border-left:3px solid var(--neon);margin-bottom:1rem;margin-top:2rem;}
+.ritem{background:var(--bg2);border:1px solid var(--b1);border-radius:6px;padding:1rem 1.2rem;margin-bottom:.6rem;display:flex;gap:1rem;align-items:flex-start;transition:all .25s;position:relative;overflow:hidden;}
+.ritem::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--blue);opacity:0;transition:opacity .3s;}
+.ritem:hover{border-color:var(--b2);}
+.ritem:hover::before{opacity:1;}
+.rnum{font-family:"Share Tech Mono",monospace;background:rgba(0,170,255,.08);border:1px solid var(--b2);color:var(--blue);font-size:.8rem;min-width:32px;height:32px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.rcont h4{font-weight:800;color:var(--text);margin-bottom:.25rem;font-size:.95rem;}
+.rcont p{color:var(--tdim);font-size:.85rem;line-height:1.6;font-weight:600;}
+.rsev{margin-left:auto;flex-shrink:0;padding:.2rem .6rem;border-radius:4px;font-size:.62rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;font-family:"Share Tech Mono",monospace;white-space:nowrap;}
+.swarn{background:rgba(255,204,0,.1);color:var(--gold);border:1px solid rgba(255,204,0,.3);}
+.skick{background:rgba(255,140,0,.1);color:var(--orange);border:1px solid rgba(255,140,0,.3);}
+.sban{background:rgba(255,34,68,.1);color:var(--red);border:1px solid rgba(255,34,68,.3);}
+.sperm{background:rgba(180,0,0,.2);color:#ff4444;border:1px solid rgba(255,68,68,.5);}
+.sok{background:rgba(0,255,136,.08);color:var(--green);border:1px solid rgba(0,255,136,.25);}
+
+/* ══ WIKI ══ */
+.wiki-wrap{max-width:1400px;margin:0 auto;padding:1rem 2rem 3rem;}
+.wsearch{width:100%;background:var(--bg2);border:1px solid var(--b2);border-radius:6px;padding:.85rem 1.2rem;color:var(--text);font-family:"Exo 2",sans-serif;font-size:.95rem;font-weight:600;outline:none;transition:all .3s;margin-bottom:1.5rem;}
+.wsearch:focus{border-color:var(--neon);box-shadow:0 0 0 2px rgba(0,212,255,.1);}
+.wsearch::placeholder{color:var(--tdim);}
+.cfilters{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:2rem;}
+.cb{background:var(--bg2);border:1px solid var(--b1);color:var(--tdim);padding:.35rem .85rem;border-radius:4px;cursor:pointer;font-family:"Exo 2",sans-serif;font-size:.78rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;transition:all .2s;}
+.cb:hover,.cb.active{background:rgba(0,170,255,.08);border-color:var(--blue);color:var(--neon);}
+.igrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1rem;}
+.icard{background:var(--bg2);border:1px solid var(--b1);border-radius:8px;padding:1.4rem;transition:all .3s;position:relative;overflow:hidden;}
+.icard::after{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--blue),var(--neon),transparent);opacity:0;transition:opacity .3s;}
+.icard:hover{border-color:var(--b2);box-shadow:0 4px 30px rgba(0,170,255,.08);transform:translateY(-2px);}
+.icard:hover::after{opacity:1;}
+.ih{display:flex;align-items:center;gap:1rem;margin-bottom:.8rem;}
+.iico{width:52px;height:52px;image-rendering:pixelated;filter:drop-shadow(0 0 8px rgba(0,170,255,.35));}
+.iname{font-weight:800;color:var(--text);margin-bottom:.3rem;font-size:1.05rem;}
+.ibadge{background:rgba(0,170,255,.08);border:1px solid rgba(0,170,255,.25);color:var(--blue);font-size:.65rem;letter-spacing:1.5px;text-transform:uppercase;padding:.15rem .5rem;border-radius:3px;font-weight:800;}
+.idesc{color:var(--tdim);font-size:.85rem;line-height:1.6;margin-bottom:.8rem;font-weight:600;}
+.istats{display:flex;flex-direction:column;gap:.35rem;margin-bottom:.8rem;}
+.stat{display:flex;justify-content:space-between;align-items:center;padding:.35rem .7rem;background:rgba(0,170,255,.03);border:1px solid rgba(0,170,255,.07);border-radius:4px;font-size:.82rem;}
+.sl{color:var(--tdim);font-weight:700;}.sv{color:var(--neon);font-weight:800;font-family:"Share Tech Mono",monospace;font-size:.85rem;}
+.iobt{font-size:.82rem;color:var(--tdim);padding:.6rem 0;border-top:1px solid var(--b1);margin-bottom:.8rem;font-weight:600;}
+.olab{color:var(--gold);font-weight:800;}
+.rsec{margin-top:.3rem;}.rl{font-family:"Share Tech Mono",monospace;font-size:.7rem;color:var(--blue);margin-bottom:.7rem;letter-spacing:3px;}
+.crow{display:flex;align-items:center;gap:.7rem;background:rgba(0,0,0,.5);border:1px solid var(--b1);border-radius:8px;padding:.9rem;width:fit-content;margin-bottom:.7rem;}
+.cg{display:grid;grid-template-columns:repeat(3,38px);grid-template-rows:repeat(3,38px);gap:2px;}
+.cs{width:38px;height:38px;background:#060c18;border:1px solid #0d2035;border-radius:3px;display:flex;align-items:center;justify-content:center;}
+.cs img{width:30px;height:30px;image-rendering:pixelated;}
+.cs.empty{background:#040910;opacity:.4;}
+.cs.txt{font-size:.5rem;color:var(--tdim);text-align:center;line-height:1.2;font-weight:700;padding:2px;font-family:"Share Tech Mono",monospace;}
+.ca img{width:26px;height:26px;image-rendering:pixelated;opacity:.6;}
+.cs.res{width:46px;height:46px;background:#07111e;border:1px solid var(--blue);border-radius:5px;box-shadow:0 0 12px rgba(0,170,255,.2);}
+.cs.res img{width:36px;height:36px;}
+.nores{text-align:center;padding:4rem 2rem;color:var(--tdim);display:none;}
+.nores.show{display:block;}
+
+/* ══ SHOP ══ */
+.shop-wrap{max-width:1400px;margin:0 auto;padding:1rem 2rem 3rem;}
+.maint-bar{background:rgba(255,140,0,.08);border:1px solid rgba(255,140,0,.3);border-radius:8px;padding:1rem 1.5rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;font-weight:700;color:var(--orange);font-size:.9rem;}
+.scats{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:2rem;}
+.scb{background:var(--bg2);border:1px solid var(--b1);color:var(--tdim);padding:.4rem 1rem;border-radius:5px;cursor:pointer;font-family:"Exo 2",sans-serif;font-size:.8rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;transition:all .2s;}
+.scb:hover,.scb.active{background:rgba(255,204,0,.08);border-color:var(--gold);color:var(--gold);}
+.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.2rem;}
+.scard{background:var(--bg2);border:1px solid var(--b1);border-radius:10px;overflow:hidden;transition:all .3s;position:relative;}
+.scard:hover{border-color:var(--b2);transform:translateY(-4px);box-shadow:0 8px 40px rgba(0,170,255,.1);}
+.sban{height:90px;display:flex;align-items:center;justify-content:center;font-size:3rem;position:relative;overflow:hidden;}
+.sban::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,var(--bg2) 100%);}
+.sbody{padding:1.2rem;}
+.sname{font-family:"Black Ops One",cursive;font-size:1rem;letter-spacing:1px;color:var(--text);margin-bottom:.4rem;}
+.sdesc{color:var(--tdim);font-size:.8rem;line-height:1.5;font-weight:600;margin-bottom:1rem;}
+.sfoot{display:flex;align-items:center;justify-content:space-between;padding-top:.8rem;border-top:1px solid var(--b1);}
+.sprice{font-family:"Share Tech Mono",monospace;font-size:1.3rem;font-weight:700;color:var(--gold);text-shadow:0 0 10px rgba(255,204,0,.4);}
+.sprice span{font-family:"Exo 2",sans-serif;font-size:.7rem;font-weight:800;color:var(--tdim);letter-spacing:1px;display:block;text-shadow:none;}
+.sbuy{background:linear-gradient(135deg,#f59e0b,var(--gold));color:var(--bg);border:none;border-radius:5px;padding:.5rem 1.1rem;cursor:pointer;font-family:"Exo 2",sans-serif;font-weight:800;font-size:.75rem;letter-spacing:1.5px;text-transform:uppercase;transition:all .2s;}
+.sbuy:hover{box-shadow:0 0 20px rgba(255,204,0,.5);transform:scale(1.03);}
+.sbuy:disabled{background:var(--b2);color:var(--tdim);cursor:not-allowed;box-shadow:none;transform:none;}
+.sbadge{position:absolute;top:10px;right:10px;z-index:2;font-family:"Exo 2",sans-serif;font-weight:800;font-size:.65rem;letter-spacing:1.5px;text-transform:uppercase;padding:.2rem .6rem;border-radius:4px;}
+.bhot{background:rgba(255,34,68,.2);color:var(--red);border:1px solid rgba(255,34,68,.4);}
+.bnew{background:rgba(0,255,136,.12);color:var(--green);border:1px solid rgba(0,255,136,.3);}
+.bsale{background:rgba(255,140,0,.15);color:var(--orange);border:1px solid rgba(255,140,0,.35);}
+.bsoon{background:rgba(136,85,255,.15);color:var(--purple);border:1px solid rgba(136,85,255,.35);}
+
+/* MODAL ACHAT */
+.modal-overlay{position:fixed;inset:0;background:rgba(3,6,13,.92);backdrop-filter:blur(16px);z-index:5000;display:flex;align-items:center;justify-content:center;padding:1.5rem;opacity:0;pointer-events:none;transition:opacity .3s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--bg2);border:1px solid var(--b2);border-radius:14px;padding:2.2rem;max-width:480px;width:100%;position:relative;overflow:hidden;}
+.modal::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),#f59e0b,transparent);}
+.modal-close{position:absolute;top:1rem;right:1.2rem;background:none;border:none;color:var(--tdim);cursor:pointer;font-family:"Share Tech Mono",monospace;font-size:.75rem;letter-spacing:1px;transition:color .2s;}
+.modal-close:hover{color:var(--text);}
+.modal-title{font-family:"Black Ops One",cursive;font-size:1.2rem;letter-spacing:2px;color:var(--gold);margin-bottom:.4rem;filter:drop-shadow(0 0 10px rgba(255,204,0,.3));}
+.modal-item{font-size:.85rem;color:var(--tmid);margin-bottom:1.5rem;font-weight:600;}
+.modal-price{font-family:"Share Tech Mono",monospace;font-size:1.6rem;color:var(--gold);margin-bottom:1.5rem;font-weight:700;}
+.mfg{display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem;}
+.mflbl{font-weight:800;font-size:.72rem;letter-spacing:2px;text-transform:uppercase;color:var(--tmid);}
+.mflbl .req{color:var(--red);}
+.mfinput{background:var(--bg3);border:1px solid var(--b2);border-radius:6px;padding:.7rem 1rem;color:var(--text);font-family:"Exo 2",sans-serif;font-size:.9rem;font-weight:600;outline:none;transition:all .25s;width:100%;}
+.mfinput:focus{border-color:var(--neon);box-shadow:0 0 0 2px rgba(0,212,255,.1);}
+.mfinput::placeholder{color:var(--tdim);}
+.stripe-note{background:rgba(99,179,255,.06);border:1px solid rgba(99,179,255,.2);border-radius:6px;padding:.8rem 1rem;margin:1rem 0;display:flex;align-items:center;gap:.7rem;font-size:.8rem;color:var(--tmid);font-weight:600;}
+.stripe-note svg{width:22px;height:22px;fill:#6474dc;flex-shrink:0;}
+.mpay-btn{width:100%;background:linear-gradient(135deg,#f59e0b,var(--gold));color:var(--bg);border:none;border-radius:7px;padding:.9rem;cursor:pointer;font-family:"Black Ops One",cursive;font-size:.95rem;letter-spacing:2px;transition:all .25s;box-shadow:0 0 20px rgba(255,204,0,.25);margin-top:.5rem;}
+.mpay-btn:hover{box-shadow:0 0 40px rgba(255,204,0,.5);transform:translateY(-2px);}
+.mpay-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.mstatus{margin-top:.8rem;padding:.8rem 1rem;border-radius:6px;font-weight:700;font-size:.85rem;display:none;}
+.mstatus.ok{display:block;background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.3);color:var(--green);}
+.mstatus.err{display:block;background:rgba(255,34,68,.08);border:1px solid rgba(255,34,68,.3);color:var(--red);}
+
+/* ══ RECRUTEMENT ══ */
+.rec-wrap{max-width:820px;margin:0 auto;padding:1rem 2rem 3rem;}
+.rec-form{background:var(--bg2);border:1px solid var(--b2);border-radius:12px;padding:2.5rem;position:relative;overflow:hidden;}
+.rec-form::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--blue),var(--neon),transparent);}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;}
+.fg{display:flex;flex-direction:column;gap:.4rem;}
+.fg.span2{grid-column:span 2;}
+.flbl{font-weight:800;font-size:.72rem;letter-spacing:2px;text-transform:uppercase;color:var(--tmid);}
+.flbl .req{color:var(--red);margin-left:2px;}
+.finput,.fselect,.ftarea{background:var(--bg3);border:1px solid var(--b2);border-radius:6px;padding:.72rem 1rem;color:var(--text);font-family:"Exo 2",sans-serif;font-size:.88rem;font-weight:600;outline:none;transition:all .25s;width:100%;}
+.finput:focus,.fselect:focus,.ftarea:focus{border-color:var(--neon);box-shadow:0 0 0 2px rgba(0,212,255,.1);}
+.finput::placeholder,.ftarea::placeholder{color:var(--tdim);}
+.fselect{cursor:pointer;}
+.fselect option{background:var(--bg2);}
+.ftarea{resize:vertical;min-height:100px;}
+.fdivider{height:1px;background:var(--b1);grid-column:span 2;margin:.3rem 0;}
+.fsectitle{font-family:"Black Ops One",cursive;font-size:.76rem;color:var(--blue);letter-spacing:3px;grid-column:span 2;padding-bottom:.4rem;border-bottom:1px solid var(--b2);margin-top:.3rem;}
+/* CHECKBOXES */
+.check-group{display:flex;flex-direction:column;gap:.5rem;margin-top:.2rem;}
+.chk-lbl{display:flex;align-items:center;gap:.7rem;cursor:pointer;background:var(--bg3);border:1px solid var(--b2);border-radius:5px;padding:.55rem .9rem;transition:all .2s;font-weight:700;font-size:.85rem;color:var(--tmid);}
+.chk-lbl input[type=checkbox]{width:16px;height:16px;accent-color:var(--blue);cursor:pointer;flex-shrink:0;}
+.chk-lbl:has(input:checked){background:rgba(0,170,255,.08);border-color:rgba(0,170,255,.4);color:var(--neon);}
+/* RADIO */
+.radio-group{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.2rem;}
+.rlbl{display:flex;align-items:center;gap:.5rem;cursor:pointer;background:var(--bg3);border:1px solid var(--b2);border-radius:5px;padding:.5rem .9rem;transition:all .2s;font-weight:700;font-size:.85rem;color:var(--tmid);}
+.rlbl input{display:none;}
+.rlbl.checked{background:rgba(0,170,255,.1);border-color:var(--blue);color:var(--neon);}
+/* RATING STARS */
+.star-group{display:flex;gap:.4rem;margin-top:.3rem;}
+.star-btn{background:var(--bg3);border:1px solid var(--b2);border-radius:4px;padding:.4rem .6rem;cursor:pointer;font-size:1rem;transition:all .2s;color:var(--tdim);}
+.star-btn.on{background:rgba(255,204,0,.1);border-color:rgba(255,204,0,.4);color:var(--gold);}
+/* TOGGLE */
+.toggle-group{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.2rem;}
+.tgl{background:var(--bg3);border:1px solid var(--b2);border-radius:6px;padding:.45rem .9rem;cursor:pointer;font-size:.82rem;font-weight:700;color:var(--tdim);transition:all .2s;user-select:none;}
+.tgl.on{background:rgba(0,255,136,.08);border-color:rgba(0,255,136,.3);color:var(--green);}
+.tgl.on-red{background:rgba(255,34,68,.08);border-color:rgba(255,34,68,.3);color:var(--red);}
+.fsubmit{display:flex;align-items:center;justify-content:space-between;margin-top:1.5rem;gap:1rem;flex-wrap:wrap;}
+.subbtn{background:linear-gradient(135deg,var(--blue),var(--neon));color:var(--bg);border:none;border-radius:6px;padding:.9rem 2.5rem;cursor:pointer;font-family:"Black Ops One",cursive;font-size:.9rem;letter-spacing:2px;transition:all .25s;box-shadow:0 0 20px rgba(0,170,255,.3);}
+.subbtn:hover{box-shadow:0 0 40px rgba(0,212,255,.6);transform:translateY(-2px);}
+.subbtn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none;}
+.subnote{font-size:.78rem;color:var(--tdim);font-weight:600;max-width:350px;line-height:1.5;}
+.fstatus{margin-top:1rem;padding:.9rem 1.2rem;border-radius:6px;font-weight:700;font-size:.9rem;display:none;letter-spacing:.5px;}
+.fstatus.ok{display:block;background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.3);color:var(--green);}
+.fstatus.err{display:block;background:rgba(255,34,68,.08);border:1px solid rgba(255,34,68,.3);color:var(--red);}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(3,6,13,.3);border-top-color:var(--bg);border-radius:50%;animation:spin .7s linear infinite;margin-right:.5rem;vertical-align:middle;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* FOOTER */
+footer{position:relative;z-index:2;border-top:1px solid var(--b2);padding:3rem 2rem;text-align:center;background:var(--bg2);margin-top:4rem;}
+footer::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--blue),var(--neon),var(--blue),transparent);}
+.flogo{font-family:"Black Ops One",cursive;font-size:1.8rem;letter-spacing:5px;background:linear-gradient(135deg,var(--blue),var(--neon));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 12px rgba(0,170,255,.4));margin-bottom:.8rem;display:block;}
+footer p{color:var(--tdim);font-size:.82rem;font-weight:600;letter-spacing:1px;margin-bottom:.4rem;}
+.fip{font-family:"Share Tech Mono",monospace;color:var(--neon);font-size:1.05rem;font-weight:700;margin-top:1rem;cursor:pointer;letter-spacing:3px;text-shadow:0 0 12px rgba(0,212,255,.5);}
+.fdisc{display:inline-flex;align-items:center;gap:.5rem;margin-top:.8rem;color:#7289da;font-weight:700;font-size:.85rem;text-decoration:none;transition:opacity .2s;}
+.fdisc:hover{opacity:.7;}
+
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--blue2);border-radius:999px;}
+@media(max-width:768px){
+  .hstats{gap:1.5rem;}.hfeats{grid-template-columns:1fr 1fr;}
+  .igrid{grid-template-columns:1fr;}.fgrid{grid-template-columns:1fr;}
+  .fg.span2,.fdivider,.fsectitle{grid-column:span 1;}
+  .rec-form{padding:1.5rem;}.sgrid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr));}
+  .nav-links a{font-size:.68rem;padding:.35rem .45rem;}
+}
+</style>
+</head>
+<body>
+<div id="particles"></div>
+<div class="copy-toast" id="toast">✔ IP COPIÉE</div>
+
+<!-- MODAL ACHAT -->
+<div class="modal-overlay" id="shopModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">[ FERMER ]</button>
+    <div class="modal-title" id="mTitle">ACHETER</div>
+    <div class="modal-item" id="mItem"></div>
+    <div class="modal-price" id="mPrice"></div>
+    <div class="mfg"><label class="mflbl">Pseudo Minecraft <span class="req">*</span></label><input class="mfinput" id="m-mc" type="text" placeholder="TonPseudo" maxlength="16"></div>
+    <div class="mfg"><label class="mflbl">Pseudo Discord <span class="req">*</span></label><input class="mfinput" id="m-dc" type="text" placeholder="pseudo ou @pseudo"></div>
+    <div class="mfg"><label class="mflbl">Email <span class="req">*</span></label><input class="mfinput" id="m-email" type="email" placeholder="ton@email.com"></div>
+    <div class="stripe-note">
+      <svg viewBox="0 0 24 24"><path d="M13.479 9.883c-1.626-.604-2.512-1.067-2.512-1.803 0-.622.511-1.045 1.423-1.045 1.737 0 3.027.8 3.875 1.462l1.423-2.355C16.54 5.166 14.901 4 12.514 4c-2.98 0-4.98 1.648-4.98 4.12 0 2.31 1.646 3.364 3.74 4.027 1.78.578 2.444 1.111 2.444 1.89 0 .8-.644 1.245-1.646 1.245-1.557 0-3.13-.845-4.18-1.912L6.4 15.635C7.672 17.002 9.624 18 12.36 18c3.25 0 5.073-1.737 5.073-4.187 0-2.187-1.423-3.32-3.954-3.93z"/></svg>
+      Paiement sécurisé via Stripe — Tu seras redirigé vers la page de paiement après confirmation.
+    </div>
+    <button class="mpay-btn" id="mPayBtn" onclick="processPayment()">💳 PROCÉDER AU PAIEMENT</button>
+    <div class="mstatus" id="mStatus"></div>
+  </div>
+</div>
+
+<nav>
+  <span class="logo" onclick="show('home')">FORGIUMMC</span>
+  <ul class="nav-links">
+    <li><a class="active" onclick="show('home')">Accueil</a></li>
+    <li><a onclick="show('rules')">Règlement</a></li>
+    <li><a onclick="show('wiki')">Wiki</a></li>
+    <li><a onclick="show('shop')">Shop</a></li>
+    <li><a onclick="show('recruit')">Recrutement</a></li>
+    <li><a class="nav-disc" href="https://discord.gg/GgPjh9KFc9" target="_blank">💬 Discord</a></li>
+    <li><a class="nav-ip" onclick="copyIP()">play.forgium.fr</a></li>
+  </ul>
+</nav>
+
+<!-- ══ HOME ══ -->
+<div id="home" class="page active">
+  <section class="hero">
+    <div class="eyebrow"><div class="eline"></div><span class="etxt">Serveur Minecraft FR</span><div class="eline"></div></div>
+    <h1 class="htitle">FORGIUMMC</h1>
+    <div class="hpvp">⚔ PVP FACTION ⚔</div>
+    <p class="hdesc">Factions · PvP · Combat intense · Communauté française</p>
+    <a class="disc-banner" href="https://discord.gg/GgPjh9KFc9" target="_blank">
+      <svg viewBox="0 0 71 55"><path d="M60.1 4.9A58.5 58.5 0 0 0 45.5.4a40 40 0 0 0-1.8 3.6 54.2 54.2 0 0 0-16.2 0A37.5 37.5 0 0 0 25.7.4 58.4 58.4 0 0 0 11 4.9C1.6 18.8-1 32.3.3 45.6a58.8 58.8 0 0 0 17.9 9 42.3 42.3 0 0 0 3.7-6 38.4 38.4 0 0 1-5.9-2.8l1.4-1.1a42 42 0 0 0 35.8 0l1.4 1.1a38.3 38.3 0 0 1-5.9 2.8 42.4 42.4 0 0 0 3.7 6 58.7 58.7 0 0 0 17.9-9C72 30.3 68.5 16.9 60.1 4.9ZM23.7 37.6c-3.5 0-6.4-3.2-6.4-7.1s2.8-7.1 6.4-7.1c3.5 0 6.4 3.2 6.4 7.1s-2.9 7.1-6.4 7.1Zm23.6 0c-3.5 0-6.4-3.2-6.4-7.1s2.8-7.1 6.4-7.1c3.5 0 6.4 3.2 6.4 7.1s-2.9 7.1-6.4 7.1Z"/></svg>
+      <span>Rejoindre le Discord</span>
+    </a>
+    <div class="ip-wrap">
+      <span class="ip-lbl">Rejoindre le serveur</span>
+      <div class="ip-box" onclick="copyIP()">play.forgium.fr</div>
+      <span class="ip-hint">Cliquer pour copier l'IP</span>
+    </div>
+    <div class="hstats">
+      <div class="hstat"><div class="snum">3</div><div class="slbl">Sets d'armures</div></div>
+      <div class="hstat"><div class="snum">27+</div><div class="slbl">Items custom</div></div>
+      <div class="hstat"><div class="snum">∞</div><div class="slbl">Factions</div></div>
+      <div class="hstat"><div class="snum">24/7</div><div class="slbl">En ligne</div></div>
+    </div>
+    <div class="hfeats">
+      <div class="feat"><span class="ficon">⚔️</span><h3>PvP Faction</h3><p>Forme ta faction, claim ton territoire, affronte tes ennemis. La guerre est permanente.</p></div>
+      <div class="feat"><span class="ficon">💎</span><h3>Items Custom</h3><p>Améthyste, Titane, Chaos — 3 tiers exclusifs d'armures, outils et armes surpuissantes.</p></div>
+      <div class="feat"><span class="ficon">🏰</span><h3>Bases & Raids</h3><p>Construis ta forteresse, protège tes ressources. Les traps sont autorisés !</p></div>
+    </div>
+  </section>
+</div>
+
+<!-- ══ RÈGLEMENT ══ -->
+<div id="rules" class="page">
+  <div class="sec-head"><h1>RÈGLEMENT</h1><div class="divider"></div><p>Règles du serveur ForgiumMC PvP Faction. Le non-respect entraîne des sanctions immédiates.</p></div>
+  <div class="rules-wrap">
+    <div class="rsec-title">// 01 — COMPORTEMENT</div>
+    <div class="ritem"><div class="rnum">01</div><div class="rcont"><h4>Respect des joueurs</h4><p>Les insultes, discrimination, harcèlement et comportements toxiques sont interdits.</p></div><span class="rsev swarn">AVERT.</span></div>
+    <div class="ritem"><div class="rnum">02</div><div class="rcont"><h4>Spam & flood</h4><p>Spam, flood, répétitions abusives et caps lock dans le chat sont interdits.</p></div><span class="rsev swarn">AVERT.</span></div>
+    <div class="ritem"><div class="rnum">03</div><div class="rcont"><h4>Langue</h4><p>Le français est obligatoire dans le chat global.</p></div><span class="rsev swarn">AVERT.</span></div>
+    <div class="ritem"><div class="rnum">04</div><div class="rcont"><h4>Pseudo & skin</h4><p>Pseudonymes et skins offensants ou imitant du staff sont interdits.</p></div><span class="rsev sban">BAN</span></div>
+    <div class="rsec-title">// 02 — JEU & FAIR-PLAY</div>
+    <div class="ritem"><div class="rnum">05</div><div class="rcont"><h4>Hacks & cheats</h4><p>Tout avantage externe interdit : kill aura, fly, x-ray, speed, auto-clicker, reach mod…</p></div><span class="rsev sperm">BAN PERM</span></div>
+    <div class="ritem"><div class="rnum">06</div><div class="rcont"><h4>Exploitation de bugs</h4><p>Exploiter un bug pour un gain quelconque est interdit. Signaler au staff.</p></div><span class="rsev sban">BAN</span></div>
+    <div class="ritem"><div class="rnum">07</div><div class="rcont"><h4>Comptes secondaires</h4><p>Alt accounts pour contourner un ban ou farmer : interdits.</p></div><span class="rsev sperm">BAN PERM</span></div>
+    <div class="ritem"><div class="rnum">08</div><div class="rcont"><h4>AFK farming</h4><p>Fermes AFK automatisées ou bots interdits sans accord d'un admin.</p></div><span class="rsev skick">KICK</span></div>
+    <div class="rsec-title">// 03 — FACTIONS, TERRAIN & PVP</div>
+    <div class="ritem"><div class="rnum">09</div><div class="rcont"><h4>Grief & raid hors-claim</h4><p>Le grief et le vol en dehors des zones claimées ennemies sont <strong style="color:var(--green)">autorisés</strong>. C'est le jeu Faction !</p></div><span class="rsev sok">AUTORISÉ</span></div>
+    <div class="ritem"><div class="rnum">10</div><div class="rcont"><h4>Traps & pièges</h4><p>Les traps de toutes formes sont <strong style="color:var(--green)">autorisés</strong> — pièges de base, embuscades, traps PvP. Fair game !</p></div><span class="rsev sok">AUTORISÉ</span></div>
+    <div class="ritem"><div class="rnum">11</div><div class="rcont"><h4>Claim abusif</h4><p>Claimer des zones massives sans les utiliser pour bloquer des joueurs est interdit.</p></div><span class="rsev swarn">AVERT.</span></div>
+    <div class="ritem"><div class="rnum">12</div><div class="rcont"><h4>Constructions offensantes</h4><p>Constructions vulgaires ou offensantes supprimées, même en zone claimée.</p></div><span class="rsev sban">BAN</span></div>
+    <div class="ritem"><div class="rnum">13</div><div class="rcont"><h4>Trapping du spawn global</h4><p>Poser des traps dans les zones protégées du spawn global est interdit.</p></div><span class="rsev sban">BAN</span></div>
+    <div class="rsec-title">// 04 — COMMERCE & ÉCHANGES</div>
+    <div class="ritem"><div class="rnum">14</div><div class="rcont"><h4>Arnaques</h4><p>Arnaques lors de trades entre joueurs interdites.</p></div><span class="rsev sban">BAN</span></div>
+    <div class="ritem"><div class="rnum">15</div><div class="rcont"><h4>Transactions IRL</h4><p>Vente d'items in-game contre argent réel hors boutique officielle = ban immédiat.</p></div><span class="rsev sperm">BAN PERM</span></div>
+    <div class="rsec-title">// 05 — STAFF & ADMINISTRATION</div>
+    <div class="ritem"><div class="rnum">16</div><div class="rcont"><h4>Respect du staff</h4><p>Le staff doit être respecté. Décisions finales. Les appels via canaux officiels uniquement.</p></div><span class="rsev sban">BAN</span></div>
+    <div class="ritem"><div class="rnum">17</div><div class="rcont"><h4>Usurpation du staff</h4><p>Se faire passer pour un membre du staff est strictement interdit.</p></div><span class="rsev sperm">BAN PERM</span></div>
+    <div class="ritem"><div class="rnum">18</div><div class="rcont"><h4>Publicité</h4><p>Publicité pour d'autres serveurs Minecraft dans le chat interdite.</p></div><span class="rsev sban">BAN</span></div>
+  </div>
+</div>
+
+<!-- ══ WIKI ══ -->
+<div id="wiki" class="page">
+  <div class="sec-head"><h1>WIKI</h1><div class="divider"></div><p>Tous les items custom de ForgiumMC — crafts, stats, minerais, armures et armes.</p></div>
+  <div class="wiki-wrap">
+    <input type="text" class="wsearch" id="wsearch" placeholder="// Rechercher un item..." oninput="wfilt()">
+    <div class="cfilters" id="cfilters"><button class="cb active" onclick="flt(this,'all')">⚔ Tout</button><button class="cb" onclick="flt(this,'Armes — Améthyste')">Armes — Améthyste</button><button class="cb" onclick="flt(this,'Armes — Chaos')">Armes — Chaos</button><button class="cb" onclick="flt(this,'Armes — Titane')">Armes — Titane</button><button class="cb" onclick="flt(this,'Armure — Améthyste')">Armure — Améthyste</button><button class="cb" onclick="flt(this,'Armure — Chaos')">Armure — Chaos</button><button class="cb" onclick="flt(this,'Armure — Titane')">Armure — Titane</button><button class="cb" onclick="flt(this,'Matériaux')">Matériaux</button><button class="cb" onclick="flt(this,'Minerais')">Minerais</button><button class="cb" onclick="flt(this,'Outils — Améthyste')">Outils — Améthyste</button><button class="cb" onclick="flt(this,'Outils — Titane')">Outils — Titane</button><button class="cb" onclick="flt(this,'Spécial')">Spécial</button></div>
+    <div class="igrid" id="igrid"><div class="icard" data-cat="Matériaux"><div class="ih"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqklEQVR4XmP4//8/AyUYQ4BUTDQwZQj4D8Lo4ngBTBMIr+H+D8YEDUHXBAI3uhEYqyHYNKFrxGkIiDGZ4R5CFx6NEQxtKFiDweY/2AAQABmCrgFdE0gNMkYxAKQYZgg+TSBcL3wHjOEGIPuthGEdhgZkTTCcKbAdYUCX5m0wxmYANk0wjBILMENABqDbhlUTMgBqhBsCMgCnTYQAyBCSNf3HkkFIwRgCpGIALcL8YP3dSWwAAAAASUVORK5CYII=" class="iico"/><div><h3 class="iname">Lingot d'Améthyste</h3><span class="ibadge">Matériaux</span></div></div><p class="idesc">Lingot précieux obtenu en minant le minerai d'améthyste.</p><div class="istats"><div class="stat"><span class="sl">📦 Stack</span><span class="sv">64</span></div></div><div class="iobt"><span class="olab">📍 Obtention :</span> Miner du minerai d'améthyste</div></div>
+<div class="icard" data-cat="Matériaux"><div class="ih"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWTsQ3EIAxFswxDsAolbMAi6ehoqTLYbeHISCD8cbjjYumlsPRelCAOIjreMC12+XmMMcTgfjlNYmKMla8RlEoplFLqqBFNQvExgtJKtNYKaoQfLHEEBZRCCAIRyDn3yEpinHOVHmCZ8d6rUhNGxCew2MCAJjXEKYwBfJsqjXN+rh4Z//BS0uYvCS/HLtNilxuNkM+4NEYq4gAAAABJRU5ErkJggg==" class="iico"/><div><h3 class="iname">Lingot de Titane</h3><span class="ibadge">Matériaux</span></div></div><p class="idesc">Lingot rare issu du minerai de titane. Tier supérieur à l'améthyste.</p><div class="istats"><div class="stat"><span class="sl">📦 Stack</span><span class="sv">64</span></div></div><div class="iobt"><span class="olab">📍 Obtention :</span> Miner le minerai de titane</div></div>
+<div class="icard" data-cat="Matériaux"><div class="ih"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABy0lEQVR4XmNgGDJgr/eT/53iG/6ji+MF5orb/qcwdP8PZqgCaQTjPpmt+A3x9z7yPz3w2X9/y3P/jQwN/tvZ2oA1sjAz/beytPgvLib6f6nxGVRDXPQO/7dV3/Pf1nLTfwV5uf8c7Gz/AwP8/+vp6vwXFhKE2w7CIcFBYDo18RbEkH0+T/8L8OvCFcTFxvx3dLD/b6Cv9z8+LhZsc2hI8H9eHm4wjo2J/q+irPQ/Oiryv4bK3P8MhwJegjXaWEfCDYmJjgIbAmL7+nj/Z2Zi/K+qovzf0ED/v6SE+H9LC/P/kRHh/5Xkpv9nOBH2HugCPrDi2BhIYIG8gezssNAQsGtkZaT/y8nK/NfR9vyvqeH2nwcYwAw73R/8NzYy/B/g7/dfQ10NqIET7DyQRlBYgGhQQDo7JYDl/P1y/nNzafz3883+X5/57z9Dq/AaoITwfy1N9//aWppgDSCngsIAxLayDP9vZhr839QEFHjc/yuSvoMDvDb9D0geBvKAHD5gyOf9d3VJ+s/EKA93Pi+P1v9LCT//JzC0A/n1yJpQgYXS9v/BQQVABSJgm44Gv/nfwLf8/wS57bg1oQNd8TX/7TX3/Q9jqCVe04ADAJDu3TIx4IfdAAAAAElFTkSuQmCC" class="iico"/><div><h3 class="iname">Lingot du Chaos</h3><span class="ibadge">Matériaux</span></div></div><p class="idesc">Matériau mystérieux issu du chaos. Tier ultime, extrêmement rare.</p><div class="istats"><div class="stat"><span class="sl">📦 Stack</span><span class="sv">64</span></div></div><div class="iobt"><span class="olab">📍 Obtention :</span> Miner le minerai du Chaos</div></div>
+<div class="icard" data-cat="Armure — Améthyste"><div class="ih"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAcklEQVR4Xr2PwQmAQAwEr418fPpLG/ZhO/bhx76sI7KPA81GcBUUBmHYDFyLiPYFEiokVEgAd4+KvCsDGG7LTszTGmZGkfK4fzlQRW4D1fHjADi/HUdSAP+hjRd65J8ARq8CPZJHAK7yFFAhoUJChYTKATmFsFKnjEjHAAAAAElFTkSuQmCC" class="iico"/><div><h3 class="iname">Casque en Améthyste</h3><span class="ibadge">Armure — Améthyste</span></div></div><p class="idesc">Résistance aux knockbacks et protection solide.</p><div class="istats"><div class="stat"><span class="sl">⚔ Durabilité</span><span class="sv">1870</span></div><div class="stat"><span class="sl">🛡 Armure</span><span class="sv">+3.0 Armure +1.0 Knockback (Tête)</span></div><div class="stat"><span class="sl">📦 Stack</span><span class="sv">1</span></div></div><div class="iobt"><span class="olab">📍 Obtention :</span> Craft</div><div class="rsec"><div class="rl">// CRAFT</div><div class="crow"><div class="cg"><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqklEQVR4XmP4//8/AyUYQ4BUTDQwZQj4D8Lo4ngBTBMIr+H+D8YEDUHXBAI3uhEYqyHYNKFrxGkIiDGZ4R5CFx6NEQxtKFiDweY/2AAQABmCrgFdE0gNMkYxAKQYZgg+TSBcL3wHjOEGIPuthGEdhgZkTTCcKbAdYUCX5m0wxmYANk0wjBILMENABqDbhlUTMgBqhBsCMgCnTYQAyBCSNf3HkkFIwRgCpGIALcL8YP3dSWwAAAAASUVORK5CYII="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqklEQVR4XmP4//8/AyUYQ4BUTDQwZQj4D8Lo4ngBTBMIr+H+D8YEDUHXBAI3uhEYqyHYNKFrxGkIiDGZ4R5CFx6NEQxtKFiDweY/2AAQABmCrgFdE0gNMkYxAKQYZgg+TSBcL3wHjOEGIPuthGEdhgZkTTCcKbAdYUCX5m0wxmYANk0wjBILMENABqDbhlUTMgBqhBsCMgCnTYQAyBCSNf3HkkFIwRgCpGIALcL8YP3dSWwAAAAASUVORK5CYII="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqklEQVR4XmP4//8/AyUYQ4BUTDQwZQj4D8Lo4ngBTBMIr+H+D8YEDUHXBAI3uhEYqyHYNKFrxGkIiDGZ4R5CFx6NEQxtKFiDweY/2AAQABmCrgFdE0gNMkYxAKQYZgg+TSBcL3wHjOEGIPuthGEdhgZkTTCcKbAdYUCX5m0wxmYANk0wjBILMENABqDbhlUTMgBqhBsCMgCnTYQAyBCSNf3HkkFIwRgCpGIALcL8YP3dSWwAAAAASUVORK5CYII="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqklEQVR4XmP4//8/AyUYQ4BUTDQwZQj4D8Lo4ngBTBMIr+H+D8YEDUHXBAI3uhEYqyHYNKFrxGkIiDGZ4R5CFx6NEQxtKFiDweY/2AAQABmCrgFdE0gNMkYxAKQYZgg+TSBcL3wHjOEGIPuthGEdhgZkTTCcKbAdYUCX5m0wxmYANk0wjBILMENABqDbhlUTMgBqhBsCMgCnTYQAyBCSNf3HkkFIwRgCpGIALcL8YP3dSWwAAAAASUVORK5CYII="/></div><div class="cs empty"></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqklEQVR4XmP4//8/AyUYQ4BUTDQwZQj4D8Lo4ngBTBMIr+H+D8YEDUHXBAI3uhEYqyHYNKFrxGkIiDGZ4R5CFx6NEQxtKFiDweY/2AAQABmCrgFdE0gNMkYxAKQYZgg+TSBcL3wHjOEGIPuthGEdhgZkTTCcKbAdYUCX5m0wxmYANk0wjBILMENABqDbhlUTMgBqhBsCMgCnTYQAyBCSNf3HkkFIwRgCpGIALcL8YP3dSWwAAAAASUVORK5CYII="/></div><div class="cs empty"></div><div class="cs empty"></div><div class="cs empty"></div></div><div class="ca"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACVSURBVGhD7dFLCsAgDEVR3f+i2w58UIqlfmJM4Z6JToJckwAAAACg4riU6zK5nEvdQ/KlXE25h4h10LYQsQraHiKzQdXhlodXGQ0KFyK9QWFDpDUofIh8Bf0mRN6CfhcizyA24u0tQMKHfAVI2JDWAAkX0hsgQ0O9Wj5mNEC2h8wGyLYQqwBxD7EOcFXbCAAAAIAxKZ04c1QM+NFnRAAAAABJRU5ErkJggg=="/></div><div class="cs res"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAcklEQVR4Xr2PwQmAQAwEr418fPpLG/ZhO/bhx76sI7KPA81GcBUUBmHYDFyLiPYFEiokVEgAd4+KvCsDGG7LTszTGmZGkfK4fzlQRW4D1fHjADi/HUdSAP+hjRd65J8ARq8CPZJHAK7yFFAhoUJChYTKATmFsFKnjEjHAAAAAElFTkSuQmCC"/></div></div></div></div>
+<div class="icard" data-cat="Armure — Améthyste"><div class="ih"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAnUlEQVR4XqWQ6w2EMAyDWaNDdI3bA8ZhD/6cbq2bI8hQIzdNEQ9LRpWTfA0dzGx44ya46/0jyjkbXIWdvAKw4Tv/bfwsVTNzGOeU0lY7ANpAAJs8QOtdgN4W1UIAQhQpnH/FfrgB6JocjgA6XL0BhJBbPALoFmcAfdwGgGIP4G/vAvQ3CODwZQA9FV8GQArxAB2GQgCExsi+7wC88QolBRnIO/NGCAAAAABJRU5ErkJggg==" class="iico"/><div><h3 class="iname">Plastron en Améthyste</h3><span class="ibadge">Armure — Améthyste</span></div></div><p class="idesc">Protection renforcée pour le torse.</p><div class="istats"><div class="stat"><span class="sl">⚔ Durabilité</span><span class="sv">1870</span></div><div class="stat"><span class="sl">🛡 Armure</span><span class="sv">+8.0 Armure (Corps)</span></div><div class="stat"><span class="sl">📦 Stack</span><span class="sv">1</span></div></div><div class="iobt"><span class="olab">📍 Obtention :</span> Craft</div><div class="rsec"><div class="rl">// CRAFT</div><div class="crow"><div class="cg"><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqklEQVR4XmP4//8/AyUYQ4BUTDQwZQj4D8Lo4ngBTBMIr+H+D8YEDUHXBAI3uhEYqyHYNKFrxGkIiDGZ4R5CFx6NEQxtKFiDweY/2AAQABmCrgFdE0gNMkYxAKQYZgg+TSBcL3wHjOEGIPuthGEdhgZkTTCcKbAdYUCX5m0wxmYANk0wjBILMENABqDbhlUTMgBqhBsCMgCnTYQAyBCSNf3HkkFIwRgCpGIALcL8YP3dSWwAAAAASUVORK5CYII="/></div><div class="cs empty"></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqklEQVR4XmP4//8/AyUYQ4BUTDQwZQj4D8Lo4ngBTBMIr+H+D8YEDUHXBAI3uhEYqyHYNKFrxGkIiDGZ4R5CFx6NEQxtKFiDweY/2AAQABmCrgFdE0gNMkYxAKQYZgg+TSBcL3wHjOEGIPuthGEdhgZkTTCcKbAdYUCX5m0wxmYANk0wjBILMENABqDbhlUTMgBqhBsCMgCnTYQAyBCSNf3HkkFIwRgCpGIALcL8YP3dSWwAAAAASUVORK5CYII="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqklEQVR4XmP4//8/AyUYQ4BUTDQwZQj4D8Lo4ngBTBMIr+H+D8YEDUHXBAI3uhEYqyHYNKFrxGkIiDGZ4R5CFx6NEQxtKFiDweY/2AAQABmCrgFdE0gNMkYxAKQYZgg+TSBcL3wHjOEGIPuthGEdhgZkTTCcKbAdYUCX5m0wxmYANk0wjBILMENABqDbhlUTMgBqhBsCMgCnTYQAyBCSNf3HkkFIwRgCpGIALcL8YP3dSWwAAAAASUVORK5CYII="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqklEQVR4XmP4//8/AyUYQ4BUTDQwZQj4D8Lo4ngBTBMIr+H+D8YEDUHXBAI3uhEYqyHYNKFrxGkIiDGZ4R5CFx6NEQxtKFiDweY/2AAQABmCrgFdE0gNMkYxAKQYZgg+TSBcL3wHjOEGIPuthGEdhgZkTTCcKbAdYUCX5m0wxmYANk0wjBILMENABqDbhlUTMgBqhBsCMgCnTYQAyBCSNf3HkkFIwRgCpGIALcL8YP3dSWwAAAAASUVORK5CYII="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqklEQVR4XmP4//8/AyUYQ4BUTDQwZQj4D8Lo4ngBTBMIr+H+D8YEDUHXBAI3uhEYqyHYNKFrxGkIiDGZ4R5CFx6NEQxtKFiDweY/2AAQABmCrgFdE0gNMkYxAKQYZgg+TSBcL3wHjOEGIPuthGEdhgZkTTCcKbAdYUCX5m0wxmYANk0wjBILMENABqDbhlUTMgBqhBsCMgCnTYQAyBCSNf3HkkFIwRgCpGIALcL8YP3dSWwAAAAASUVORK5CYII="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqklEQVR4XmP4//8/AyUYQ4BUTDQwZQj4D8Lo4ngBTBMIr+H+D8YEDUHXBAI3uhEYqyHYNKFrxGkIiDGZ4R5CFx6NEQxtKFiDweY/2AAQABmCrgFdE0gNMkYxAKQYZgg+TSBcL3wHjOEGIPuthGEdhgZkTTCcKbAdYUCX5m0wxmYANk0wjBILMENABqDbhlUTMgBqhBsCMgCnTYQAyBCSNf3HkkFIwRgCpGIALcL8YP3dSWwAAAAASUVORK5CYII="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqklEQVR4XmP4//8/AyUYQ4BUTDQwZQj4D8Lo4ngBTBMIr+H+D8YEDUHXBAI3uhEYqyHYNKFrxGkIiDGZ4R5CFx6NEQxtKFiDweY/2AAQABmCrgFdE0gNMkYxAKQYZgg+TSBcL3wHjOEGIPuthGEdhgZkTTCcKbAdYUCX5m0wxmYANk0wjBILMENABqDbhlUTMgBqhBsCMgCnTYQAyBCSNf3HkkFIwRgCpGIALcL8YP3dSWwAAAAASUVORK5CYII="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqklEQVR4XmP4//8/AyUYQ4BUTDQwZQj4D8Lo4ngBTBMIr+H+D8YEDUHXBAI3uhEYqyHYNKFrxGkIiDGZ4R5CFx6NEQxtKFiDweY/2AAQABmCrgFdE0gNMkYxAKQYZgg+TSBcL3wHjOEGIPuthGEdhgZkTTCcKbAdYUCX5m0wxmYANk0wjBILMENABqDbhlUTMgBqhBsCMgCnTYQAyBCSNf3HkkFIwRgCpGIALcL8YP3dSWwAAAAASUVORK5CYII="/></div></div><div class="ca"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACVSURBVGhD7dFLCsAgDEVR3f+i2w58UIqlfmJM4Z6JToJckwAAAACg4riU6zK5nEvdQ/KlXE25h4h10LYQsQraHiKzQdXhlodXGQ0KFyK9QWFDpDUofIh8Bf0mRN6CfhcizyA24u0tQMKHfAVI2JDWAAkX0hsgQ0O9Wj5mNEC2h8wGyLYQqwBxD7EOcFXbCAAAAIAxKZ04c1QM+NFnRAAAAABJRU5ErkJggg=="/></div><div class="cs res"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAnUlEQVR4XqWQ6w2EMAyDWaNDdI3bA8ZhD/6cbq2bI8hQIzdNEQ9LRpWTfA0dzGx44ya46/0jyjkbXIWdvAKw4Tv/bfwsVTNzGOeU0lY7ANpAAJs8QOtdgN4W1UIAQhQpnH/FfrgB6JocjgA6XL0BhJBbPALoFmcAfdwGgGIP4G/vAvQ3CODwZQA9FV8GQArxAB2GQgCExsi+7wC88QolBRnIO/NGCAAAAABJRU5ErkJggg=="/></div></div></div></div>
+<div class="icard" data-cat="Armure — Améthyste"><div class="ih"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAZUlEQVR4XmP4//8/AyUYQ4BUjMoBAl1d3f/4MEgNTgNAClZ1PcWJE92W/peUlPxP0AAYoMgAkGJkTJIBME0gxSBMlgEgheBQhQbsqAH0NAA5CpENQBbHawBIAQwjG4AsjtMAcjAA3IllTtRTD8MAAAAASUVORK5CYII=" class="iico"/><div><h3 class="iname">Jambières en Améthyste</h3><span class="ibadge">Armure — Améthyste</span></div></div><p class="idesc">Jambières en améthyste pour les jambes.</p><div class="istats"><div class="stat"><span class="sl">⚔ Durabilité</span><span class="sv">1870</span></div><div class="stat"><span class="sl">🛡 Armure</span><span class="sv">+6.0 Armure (Jambes)</span></div><div class="stat"><span class="sl">📦 Stack</span><span class="sv">1</span></div></div><div class="iobt"><span class="olab">📍 Obtention :</span> Craft</div><div class="rsec"><div class="rl">// CRAFT</div><div class="crow"><div class="cg"><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqklEQVR4XmP4//8/AyUYQ4BUTDQwZQj4D8Lo4ngBTBMIr+H+D8YEDUHXBAI3uhEYqyHYNKFrxGkIiDGZ4R5CFx6NEQxtKFiDweY/2AAQABmCrgFdE0gNMkYxAKQYZgg+TSBcL3wHjOEGIPuthGEdhgZkTTCcKbAdYUCX5m0wxmYANk0wjBILMENABqDbhlUTMgBqhBsCMgCnTYQAyBCSNf3HkkFIwRgCpGIALcL8YP3dSWwAAAAASUVORK5CYII="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqklEQVR4XmP4//8/AyUYQ4BUTDQwZQj4D8Lo4ngBTBMIr+H+D8YEDUHXBAI3uhEYqyHYNKFrxGkIiDGZ4R5CFx6NEQxtKFiDweY/2AAQABmCrgFdE0gNMkYxAKQYZgg+TSBcL3wHjOEGIPuthGEdhgZkTTCcKbAdYUCX5m0wxmYANk0wjBILMENABqDbhlUTMgBqhBsCMgCnTYQAyBCSNf3HkkFIwRgCpGIALcL8YP3dSWwAAAAASUVORK5CYII="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqklEQVR4XmP4//8/AyUYQ4BUTDQwZQj4D8Lo4ngBTBMIr+H+D8YEDUHXBAI3uhEYqyHYNKFrxGkIiDGZ4R5CFx6NEQxtKFiDweY/2AAQABmCrgFdE0gNMkYxAKQYZgg+TSBcL3wHjOEGIPuthGEdhgZkTTCcKbAdYUCX5m0wxmYANk0wjBILMENABqDbhlUTMgBqhBsCMgCnTYQAyBCSNf3HkkFIwRgCpGIALcL8YP3dSWwAAAAASUVORK5CYII="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqklEQVR4XmP4//8/AyUYQ4BUTDQwZQj4D8Lo4ngBTBMIr+H+D8YEDUHXBAI3uhEYqyHYNKFrxGkIiDGZ4R5CFx6NEQxtKFiDweY/2AAQABmCrgFdE0gNMkYxAKQYZgg+TSBcL3wHjOEGIPuthGEdhgZkTTCcKbAdYUCX5m0wxmYANk0wjBILMENABqDbhlUTMgBqhBsCMgCnTYQAyBCSNf3HkkFIwRgCpGIALcL8YP3dSWwAAAAASUVORK5CYII="/></div><div class="cs empty"></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqklEQVR4XmP4//8/AyUYQ4BUTDQwZQj4D8Lo4ngBTBMIr+H+D8YEDUHXBAI3uhEYqyHYNKFrxGkIiDGZ4R5CFx6NEQxtKFiDweY/2AAQABmCrgFdE0gNMkYxAKQYZgg+TSBcL3wHjOEGIPuthGEdhgZkTTCcKbAdYUCX5m0wxmYANk0wjBILMENABqDbhlUTMgBqhBsCMgCnTYQAyBCSNf3HkkFIwRgCpGIALcL8YP3dSWwAAAAASUVORK5CYII="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqklEQVR4XmP4//8/AyUYQ4BUTDQwZQj4D8Lo4ngBTBMIr+H+D8YEDUHXBAI3uhEYqyHYNKFrxGkIiDGZ4R5CFx6NEQxtKFiDweY/2AAQABmCrgFdE0gNMkYxAKQYZgg+TSBcL3wHjOEGIPuthGEdhgZkTTCcKbAdYUCX5m0wxmYANk0wjBILMENABqDbhlUTMgBqhBsCMgCnTYQAyBCSNf3HkkFIwRgCpGIALcL8YP3dSWwAAAAASUVORK5CYII="/></div><div class="cs empty"></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqklEQVR4XmP4//8/AyUYQ4BUTDQwZQj4D8Lo4ngBTBMIr+H+D8YEDUHXBAI3uhEYqyHYNKFrxGkIiDGZ4R5CFx6NEQxtKFiDweY/2AAQABmCrgFdE0gNMkYxAKQYZgg+TSBcL3wHjOEGIPuthGEdhgZkTTCcKbAdYUCX5m0wxmYANk0wjBILMENABqDbhlUTMgBqhBsCMgCnTYQAyBCSNf3HkkFIwRgCpGIALcL8YP3dSWwAAAAASUVORK5CYII="/></div></div><div class="ca"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACVSURBVGhD7dFLCsAgDEVR3f+i2w58UIqlfmJM4Z6JToJckwAAAACg4riU6zK5nEvdQ/KlXE25h4h10LYQsQraHiKzQdXhlodXGQ0KFyK9QWFDpDUofIh8Bf0mRN6CfhcizyA24u0tQMKHfAVI2JDWAAkX0hsgQ0O9Wj5mNEC2h8wGyLYQqwBxD7EOcFXbCAAAAIAxKZ04c1QM+NFnRAAAAABJRU5ErkJggg=="/></div><div class="cs res"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAZUlEQVR4XmP4//8/AyUYQ4BUjMoBAl1d3f/4MEgNTgNAClZ1PcWJE92W/peUlPxP0AAYoMgAkGJkTJIBME0gxSBMlgEgheBQhQbsqAH0NAA5CpENQBbHawBIAQwjG4AsjtMAcjAA3IllTtRTD8MAAAAASUVORK5CYII="/></div></div></div></div>
+<div class="icard" data-cat="Armure — Améthyste"><div class="ih"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAf0lEQVR4Xs2RywmAMBBEbSNFpA37sB378GJf1rEyyMj+Iiy5uDA5vMy+IC4isswkgGoCqOY51PTehflimCBA4dwv2dZDWmtGkPFUgPHFEU8F2Usj/jMBvzMrUsDwb7wCXcByJgDTHdwbARf9MgfMd4wAgPHLHN0xgpkEUE0A1dwdAQkO5IHBpwAAAABJRU5ErkJggg==" class="iico"/><div><h3 class="iname">Bottes en Améthyste</h3><span class="ibadge">Armure — Améthyste</span></div></div><p class="idesc">Bottes en améthyste pour les pieds.</p><div class="istats"><div class="stat"><span class="sl">⚔ Durabilité</span><span class="sv">1870</span></div><div class="stat"><span class="sl">🛡 Armure</span><span class="sv">+3.0 Armure (Pieds)</span></div><div class="stat"><span class="sl">📦 Stack</span><span class="sv">1</span></div></div><div class="iobt"><span class="olab">📍 Obtention :</span> Craft</div><div class="rsec"><div class="rl">// CRAFT</div><div class="crow"><div class="cg"><div class="cs empty"></div><div class="cs empty"></div><div class="cs empty"></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqklEQVR4XmP4//8/AyUYQ4BUTDQwZQj4D8Lo4ngBTBMIr+H+D8YEDUHXBAI3uhEYqyHYNKFrxGkIiDGZ4R5CFx6NEQxtKFiDweY/2AAQABmCrgFdE0gNMkYxAKQYZgg+TSBcL3wHjOEGIPuthGEdhgZkTTCcKbAdYUCX5m0wxmYANk0wjBILMENABqDbhlUTMgBqhBsCMgCnTYQAyBCSNf3HkkFIwRgCpGIALcL8YP3dSWwAAAAASUVORK5CYII="/></div><div class="cs empty"></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqklEQVR4XmP4//8/AyUYQ4BUTDQwZQj4D8Lo4ngBTBMIr+H+D8YEDUHXBAI3uhEYqyHYNKFrxGkIiDGZ4R5CFx6NEQxtKFiDweY/2AAQABmCrgFdE0gNMkYxAKQYZgg+TSBcL3wHjOEGIPuthGEdhgZkTTCcKbAdYUCX5m0wxmYANk0wjBILMENABqDbhlUTMgBqhBsCMgCnTYQAyBCSNf3HkkFIwRgCpGIALcL8YP3dSWwAAAAASUVORK5CYII="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqklEQVR4XmP4//8/AyUYQ4BUTDQwZQj4D8Lo4ngBTBMIr+H+D8YEDUHXBAI3uhEYqyHYNKFrxGkIiDGZ4R5CFx6NEQxtKFiDweY/2AAQABmCrgFdE0gNMkYxAKQYZgg+TSBcL3wHjOEGIPuthGEdhgZkTTCcKbAdYUCX5m0wxmYANk0wjBILMENABqDbhlUTMgBqhBsCMgCnTYQAyBCSNf3HkkFIwRgCpGIALcL8YP3dSWwAAAAASUVORK5CYII="/></div><div class="cs empty"></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqklEQVR4XmP4//8/AyUYQ4BUTDQwZQj4D8Lo4ngBTBMIr+H+D8YEDUHXBAI3uhEYqyHYNKFrxGkIiDGZ4R5CFx6NEQxtKFiDweY/2AAQABmCrgFdE0gNMkYxAKQYZgg+TSBcL3wHjOEGIPuthGEdhgZkTTCcKbAdYUCX5m0wxmYANk0wjBILMENABqDbhlUTMgBqhBsCMgCnTYQAyBCSNf3HkkFIwRgCpGIALcL8YP3dSWwAAAAASUVORK5CYII="/></div></div><div class="ca"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACVSURBVGhD7dFLCsAgDEVR3f+i2w58UIqlfmJM4Z6JToJckwAAAACg4riU6zK5nEvdQ/KlXE25h4h10LYQsQraHiKzQdXhlodXGQ0KFyK9QWFDpDUofIh8Bf0mRN6CfhcizyA24u0tQMKHfAVI2JDWAAkX0hsgQ0O9Wj5mNEC2h8wGyLYQqwBxD7EOcFXbCAAAAIAxKZ04c1QM+NFnRAAAAABJRU5ErkJggg=="/></div><div class="cs res"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAf0lEQVR4Xs2RywmAMBBEbSNFpA37sB378GJf1rEyyMj+Iiy5uDA5vMy+IC4isswkgGoCqOY51PTehflimCBA4dwv2dZDWmtGkPFUgPHFEU8F2Usj/jMBvzMrUsDwb7wCXcByJgDTHdwbARf9MgfMd4wAgPHLHN0xgpkEUE0A1dwdAQkO5IHBpwAAAABJRU5ErkJggg=="/></div></div></div></div>
+<div class="icard" data-cat="Armes — Améthyste"><div class="ih"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAuUlEQVR4XmNgIAFoMUT9R8foanACkOIwhu3/Mxke/C9k+Pi/Xfk38QYgaybZBeg2g/jTE6/8N2MoIk0zzMZshseU2QyiAxnWYBqC7jd8NsPEMAyYFHQbrphom2EApnB2zgUUlxC0GRnAFMBsJMpmZIBNM0ycKAPakxhQNIOwKKs6ujJUoMLlDDYZpHlvF8N/T1OIITDN5nyZDHgNAUqCFII1gDRjkSdsAMhmEI0uRxSAuQCEYd4hBQAAoFbKCXPPbgwAAAAASUVORK5CYII=" class="iico"/><div><h3 class="iname">Épée en Améthyste</h3><span class="ibadge">Armes — Améthyste</span></div></div><p class="idesc">Épée en améthyste, efficace en PvP.</p><div class="istats"><div class="stat"><span class="sl">⚔ Durabilité</span><span class="sv">1870</span></div><div class="stat"><span class="sl">📦 Stack</span><span class="sv">1</span></div></div><div class="iobt"><span class="olab">📍 Obtention :</span> Craft</div><div class="rsec"><div class="rl">// CRAFT</div><div class="crow"><div class="cg"><div class="cs empty"></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqklEQVR4XmP4//8/AyUYQ4BUTDQwZQj4D8Lo4ngBTBMIr+H+D8YEDUHXBAI3uhEYqyHYNKFrxGkIiDGZ4R5CFx6NEQxtKFiDweY/2AAQABmCrgFdE0gNMkYxAKQYZgg+TSBcL3wHjOEGIPuthGEdhgZkTTCcKbAdYUCX5m0wxmYANk0wjBILMENABqDbhlUTMgBqhBsCMgCnTYQAyBCSNf3HkkFIwRgCpGIALcL8YP3dSWwAAAAASUVORK5CYII="/></div><div class="cs empty"></div><div class="cs empty"></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqklEQVR4XmP4//8/AyUYQ4BUTDQwZQj4D8Lo4ngBTBMIr+H+D8YEDUHXBAI3uhEYqyHYNKFrxGkIiDGZ4R5CFx6NEQxtKFiDweY/2AAQABmCrgFdE0gNMkYxAKQYZgg+TSBcL3wHjOEGIPuthGEdhgZkTTCcKbAdYUCX5m0wxmYANk0wjBILMENABqDbhlUTMgBqhBsCMgCnTYQAyBCSNf3HkkFIwRgCpGIALcL8YP3dSWwAAAAASUVORK5CYII="/></div><div class="cs empty"></div><div class="cs empty"></div><div class="cs txt"><span>Bâton</span></div><div class="cs empty"></div></div><div class="ca"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACVSURBVGhD7dFLCsAgDEVR3f+i2w58UIqlfmJM4Z6JToJckwAAAACg4riU6zK5nEvdQ/KlXE25h4h10LYQsQraHiKzQdXhlodXGQ0KFyK9QWFDpDUofIh8Bf0mRN6CfhcizyA24u0tQMKHfAVI2JDWAAkX0hsgQ0O9Wj5mNEC2h8wGyLYQqwBxD7EOcFXbCAAAAIAxKZ04c1QM+NFnRAAAAABJRU5ErkJggg=="/></div><div class="cs res"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAuUlEQVR4XmNgIAFoMUT9R8foanACkOIwhu3/Mxke/C9k+Pi/Xfk38QYgaybZBeg2g/jTE6/8N2MoIk0zzMZshseU2QyiAxnWYBqC7jd8NsPEMAyYFHQbrphom2EApnB2zgUUlxC0GRnAFMBsJMpmZIBNM0ycKAPakxhQNIOwKKs6ujJUoMLlDDYZpHlvF8N/T1OIITDN5nyZDHgNAUqCFII1gDRjkSdsAMhmEI0uRxSAuQCEYd4hBQAAoFbKCXPPbgwAAAAASUVORK5CYII="/></div></div></div></div>
+<div class="icard" data-cat="Outils — Améthyste"><div class="ih"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA00lEQVR4XpWTPQoCMRCFpxc8wtZib6u1rYWFpbWN2HgDwdKDCFZWnsRTeIKRF3zhJZOFOPA2P5P5ZjZMzN2NOuMr6x7lydx2ftu8HWN9iP6jfYIvAKCtPROoFvftZwUABudpeU+HkE1FAOcBoBkI0MwK4bpZQStrDaECgBDNjPFx8AAZpqt4B2qsRivgXhfgsjd/Xa2AdAMYvF5YEah3MwrQ4NkwSXuamb/TBLSCawD6RDs2BWMxFqwQ3gU7Fm+ncIwF03CGY66A5dV93mMZoMR/9QUE485IquUZGwAAAABJRU5ErkJggg==" class="iico"/><div><h3 class="iname">Pioche en Améthyste</h3><span class="ibadge">Outils — Améthyste</span></div></div><p class="idesc">Pioche en améthyste pour les minerais rares.</p><div class="istats"><div class="stat"><span class="sl">⚔ Durabilité</span><span class="sv">1870</span></div><div class="stat"><span class="sl">📦 Stack</span><span class="sv">1</span></div></div><div class="iobt"><span class="olab">📍 Obtention :</span> Craft</div><div class="rsec"><div class="rl">// CRAFT</div><div class="crow"><div class="cg"><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqklEQVR4XmP4//8/AyUYQ4BUTDQwZQj4D8Lo4ngBTBMIr+H+D8YEDUHXBAI3uhEYqyHYNKFrxGkIiDGZ4R5CFx6NEQxtKFiDweY/2AAQABmCrgFdE0gNMkYxAKQYZgg+TSBcL3wHjOEGIPuthGEdhgZkTTCcKbAdYUCX5m0wxmYANk0wjBILMENABqDbhlUTMgBqhBsCMgCnTYQAyBCSNf3HkkFIwRgCpGIALcL8YP3dSWwAAAAASUVORK5CYII="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqklEQVR4XmP4//8/AyUYQ4BUTDQwZQj4D8Lo4ngBTBMIr+H+D8YEDUHXBAI3uhEYqyHYNKFrxGkIiDGZ4R5CFx6NEQxtKFiDweY/2AAQABmCrgFdE0gNMkYxAKQYZgg+TSBcL3wHjOEGIPuthGEdhgZkTTCcKbAdYUCX5m0wxmYANk0wjBILMENABqDbhlUTMgBqhBsCMgCnTYQAyBCSNf3HkkFIwRgCpGIALcL8YP3dSWwAAAAASUVORK5CYII="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqklEQVR4XmP4//8/AyUYQ4BUTDQwZQj4D8Lo4ngBTBMIr+H+D8YEDUHXBAI3uhEYqyHYNKFrxGkIiDGZ4R5CFx6NEQxtKFiDweY/2AAQABmCrgFdE0gNMkYxAKQYZgg+TSBcL3wHjOEGIPuthGEdhgZkTTCcKbAdYUCX5m0wxmYANk0wjBILMENABqDbhlUTMgBqhBsCMgCnTYQAyBCSNf3HkkFIwRgCpGIALcL8YP3dSWwAAAAASUVORK5CYII="/></div><div class="cs empty"></div><div class="cs txt"><span>Bâton</span></div><div class="cs empty"></div><div class="cs empty"></div><div class="cs txt"><span>Bâton</span></div><div class="cs empty"></div></div><div class="ca"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACVSURBVGhD7dFLCsAgDEVR3f+i2w58UIqlfmJM4Z6JToJckwAAAACg4riU6zK5nEvdQ/KlXE25h4h10LYQsQraHiKzQdXhlodXGQ0KFyK9QWFDpDUofIh8Bf0mRN6CfhcizyA24u0tQMKHfAVI2JDWAAkX0hsgQ0O9Wj5mNEC2h8wGyLYQqwBxD7EOcFXbCAAAAIAxKZ04c1QM+NFnRAAAAABJRU5ErkJggg=="/></div><div class="cs res"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA00lEQVR4XpWTPQoCMRCFpxc8wtZib6u1rYWFpbWN2HgDwdKDCFZWnsRTeIKRF3zhJZOFOPA2P5P5ZjZMzN2NOuMr6x7lydx2ftu8HWN9iP6jfYIvAKCtPROoFvftZwUABudpeU+HkE1FAOcBoBkI0MwK4bpZQStrDaECgBDNjPFx8AAZpqt4B2qsRivgXhfgsjd/Xa2AdAMYvF5YEah3MwrQ4NkwSXuamb/TBLSCawD6RDs2BWMxFqwQ3gU7Fm+ncIwF03CGY66A5dV93mMZoMR/9QUE485IquUZGwAAAABJRU5ErkJggg=="/></div></div></div></div>
+<div class="icard" data-cat="Outils — Améthyste"><div class="ih"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAxUlEQVR4XpWSsQ0CMRAEN6cH4hc5PUADH5BBRkgVSN8AdEJEFxRAC1RwaF/a09k6m+eklV533vG+bZgZetrgYBd8CrGnuS/MSuYz3jbiMYs9zn4CarN21lzpUgAHNEYzFRNogy5AsW/HlwMEEbgJiLtK8SC7AEEEypIwYRfAup7gC2MS9ZqHKPNzgu23KJJE8+zLANE8rFfFlVIyp4DarNKZ6BpTQMucVQEQeamZ5YD4KPi9xMwqADvc/YXVC1uV/oKa/+gLBuaY+Bxm7IMAAAAASUVORK5CYII=" class="iico"/><div><h3 class="iname">Hache en Améthyste</h3><span class="ibadge">Outils — Améthyste</span></div></div><p class="idesc">Hache en améthyste, bois et combat.</p><div class="istats"><div class="stat"><span class="sl">⚔ Durabilité</span><span class="sv">1870</span></div><div class="stat"><span class="sl">📦 Stack</span><span class="sv">1</span></div></div><div class="iobt"><span class="olab">📍 Obtention :</span> Craft</div><div class="rsec"><div class="rl">// CRAFT</div><div class="crow"><div class="cg"><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqklEQVR4XmP4//8/AyUYQ4BUTDQwZQj4D8Lo4ngBTBMIr+H+D8YEDUHXBAI3uhEYqyHYNKFrxGkIiDGZ4R5CFx6NEQxtKFiDweY/2AAQABmCrgFdE0gNMkYxAKQYZgg+TSBcL3wHjOEGIPuthGEdhgZkTTCcKbAdYUCX5m0wxmYANk0wjBILMENABqDbhlUTMgBqhBsCMgCnTYQAyBCSNf3HkkFIwRgCpGIALcL8YP3dSWwAAAAASUVORK5CYII="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqklEQVR4XmP4//8/AyUYQ4BUTDQwZQj4D8Lo4ngBTBMIr+H+D8YEDUHXBAI3uhEYqyHYNKFrxGkIiDGZ4R5CFx6NEQxtKFiDweY/2AAQABmCrgFdE0gNMkYxAKQYZgg+TSBcL3wHjOEGIPuthGEdhgZkTTCcKbAdYUCX5m0wxmYANk0wjBILMENABqDbhlUTMgBqhBsCMgCnTYQAyBCSNf3HkkFIwRgCpGIALcL8YP3dSWwAAAAASUVORK5CYII="/></div><div class="cs empty"></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqklEQVR4XmP4//8/AyUYQ4BUTDQwZQj4D8Lo4ngBTBMIr+H+D8YEDUHXBAI3uhEYqyHYNKFrxGkIiDGZ4R5CFx6NEQxtKFiDweY/2AAQABmCrgFdE0gNMkYxAKQYZgg+TSBcL3wHjOEGIPuthGEdhgZkTTCcKbAdYUCX5m0wxmYANk0wjBILMENABqDbhlUTMgBqhBsCMgCnTYQAyBCSNf3HkkFIwRgCpGIALcL8YP3dSWwAAAAASUVORK5CYII="/></div><div class="cs txt"><span>Bâton</span></div><div class="cs empty"></div><div class="cs empty"></div><div class="cs txt"><span>Bâton</span></div><div class="cs empty"></div></div><div class="ca"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACVSURBVGhD7dFLCsAgDEVR3f+i2w58UIqlfmJM4Z6JToJckwAAAACg4riU6zK5nEvdQ/KlXE25h4h10LYQsQraHiKzQdXhlodXGQ0KFyK9QWFDpDUofIh8Bf0mRN6CfhcizyA24u0tQMKHfAVI2JDWAAkX0hsgQ0O9Wj5mNEC2h8wGyLYQqwBxD7EOcFXbCAAAAIAxKZ04c1QM+NFnRAAAAABJRU5ErkJggg=="/></div><div class="cs res"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAxUlEQVR4XpWSsQ0CMRAEN6cH4hc5PUADH5BBRkgVSN8AdEJEFxRAC1RwaF/a09k6m+eklV533vG+bZgZetrgYBd8CrGnuS/MSuYz3jbiMYs9zn4CarN21lzpUgAHNEYzFRNogy5AsW/HlwMEEbgJiLtK8SC7AEEEypIwYRfAup7gC2MS9ZqHKPNzgu23KJJE8+zLANE8rFfFlVIyp4DarNKZ6BpTQMucVQEQeamZ5YD4KPi9xMwqADvc/YXVC1uV/oKa/+gLBuaY+Bxm7IMAAAAASUVORK5CYII="/></div></div></div></div>
+<div class="icard" data-cat="Outils — Améthyste"><div class="ih"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAq0lEQVR4XmNgIAJoMUT9B2EYvz2J4T8QM+ztQlaFBcA0hjFsxzAAqPm/pymyaiwApCmT4QEYwwxB0gzG6HrgAGYzSHMhw0e4QSBxvBphANn5MENgBiF7hyCAeQPZAJh3iDII5GfksEA3BF09HECjCh5gyN4hyhvImmFiyFGK1wBcUUVQIwhgs5loQLZmmNPI1gwKGFD0EPQfNgDS5MEwg3C84gKgLElU6OIAAAyLr2aXzcOrAAAAAElFTkSuQmCC" class="iico"/><div><h3 class="iname">Hammer en Améthyste</h3><span class="ibadge">Outils — Améthyste</span></div></div><p class="idesc">Mine une zone 3×3 en un seul coup.</p><div class="istats"><div class="stat"><span class="sl">⚔ Durabilité</span><span class="sv">1870</span></div><div class="stat"><span class="sl">📦 Stack</span><span class="sv">1</span></div></div><div class="iobt"><span class="olab">📍 Obtention :</span> Craft</div><div class="rsec"><div class="rl">// CRAFT</div><div class="crow"><div class="cg"><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqklEQVR4XmP4//8/AyUYQ4BUTDQwZQj4D8Lo4ngBTBMIr+H+D8YEDUHXBAI3uhEYqyHYNKFrxGkIiDGZ4R5CFx6NEQxtKFiDweY/2AAQABmCrgFdE0gNMkYxAKQYZgg+TSBcL3wHjOEGIPuthGEdhgZkTTCcKbAdYUCX5m0wxmYANk0wjBILMENABqDbhlUTMgBqhBsCMgCnTYQAyBCSNf3HkkFIwRgCpGIALcL8YP3dSWwAAAAASUVORK5CYII="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqklEQVR4XmP4//8/AyUYQ4BUTDQwZQj4D8Lo4ngBTBMIr+H+D8YEDUHXBAI3uhEYqyHYNKFrxGkIiDGZ4R5CFx6NEQxtKFiDweY/2AAQABmCrgFdE0gNMkYxAKQYZgg+TSBcL3wHjOEGIPuthGEdhgZkTTCcKbAdYUCX5m0wxmYANk0wjBILMENABqDbhlUTMgBqhBsCMgCnTYQAyBCSNf3HkkFIwRgCpGIALcL8YP3dSWwAAAAASUVORK5CYII="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqklEQVR4XmP4//8/AyUYQ4BUTDQwZQj4D8Lo4ngBTBMIr+H+D8YEDUHXBAI3uhEYqyHYNKFrxGkIiDGZ4R5CFx6NEQxtKFiDweY/2AAQABmCrgFdE0gNMkYxAKQYZgg+TSBcL3wHjOEGIPuthGEdhgZkTTCcKbAdYUCX5m0wxmYANk0wjBILMENABqDbhlUTMgBqhBsCMgCnTYQAyBCSNf3HkkFIwRgCpGIALcL8YP3dSWwAAAAASUVORK5CYII="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqklEQVR4XmP4//8/AyUYQ4BUTDQwZQj4D8Lo4ngBTBMIr+H+D8YEDUHXBAI3uhEYqyHYNKFrxGkIiDGZ4R5CFx6NEQxtKFiDweY/2AAQABmCrgFdE0gNMkYxAKQYZgg+TSBcL3wHjOEGIPuthGEdhgZkTTCcKbAdYUCX5m0wxmYANk0wjBILMENABqDbhlUTMgBqhBsCMgCnTYQAyBCSNf3HkkFIwRgCpGIALcL8YP3dSWwAAAAASUVORK5CYII="/></div><div class="cs txt"><span>Bâton</span></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqklEQVR4XmP4//8/AyUYQ4BUTDQwZQj4D8Lo4ngBTBMIr+H+D8YEDUHXBAI3uhEYqyHYNKFrxGkIiDGZ4R5CFx6NEQxtKFiDweY/2AAQABmCrgFdE0gNMkYxAKQYZgg+TSBcL3wHjOEGIPuthGEdhgZkTTCcKbAdYUCX5m0wxmYANk0wjBILMENABqDbhlUTMgBqhBsCMgCnTYQAyBCSNf3HkkFIwRgCpGIALcL8YP3dSWwAAAAASUVORK5CYII="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqklEQVR4XmP4//8/AyUYQ4BUTDQwZQj4D8Lo4ngBTBMIr+H+D8YEDUHXBAI3uhEYqyHYNKFrxGkIiDGZ4R5CFx6NEQxtKFiDweY/2AAQABmCrgFdE0gNMkYxAKQYZgg+TSBcL3wHjOEGIPuthGEdhgZkTTCcKbAdYUCX5m0wxmYANk0wjBILMENABqDbhlUTMgBqhBsCMgCnTYQAyBCSNf3HkkFIwRgCpGIALcL8YP3dSWwAAAAASUVORK5CYII="/></div><div class="cs txt"><span>Bâton</span></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqklEQVR4XmP4//8/AyUYQ4BUTDQwZQj4D8Lo4ngBTBMIr+H+D8YEDUHXBAI3uhEYqyHYNKFrxGkIiDGZ4R5CFx6NEQxtKFiDweY/2AAQABmCrgFdE0gNMkYxAKQYZgg+TSBcL3wHjOEGIPuthGEdhgZkTTCcKbAdYUCX5m0wxmYANk0wjBILMENABqDbhlUTMgBqhBsCMgCnTYQAyBCSNf3HkkFIwRgCpGIALcL8YP3dSWwAAAAASUVORK5CYII="/></div></div><div class="ca"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACVSURBVGhD7dFLCsAgDEVR3f+i2w58UIqlfmJM4Z6JToJckwAAAACg4riU6zK5nEvdQ/KlXE25h4h10LYQsQraHiKzQdXhlodXGQ0KFyK9QWFDpDUofIh8Bf0mRN6CfhcizyA24u0tQMKHfAVI2JDWAAkX0hsgQ0O9Wj5mNEC2h8wGyLYQqwBxD7EOcFXbCAAAAIAxKZ04c1QM+NFnRAAAAABJRU5ErkJggg=="/></div><div class="cs res"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAq0lEQVR4XmNgIAJoMUT9B2EYvz2J4T8QM+ztQlaFBcA0hjFsxzAAqPm/pymyaiwApCmT4QEYwwxB0gzG6HrgAGYzSHMhw0e4QSBxvBphANn5MENgBiF7hyCAeQPZAJh3iDII5GfksEA3BF09HECjCh5gyN4hyhvImmFiyFGK1wBcUUVQIwhgs5loQLZmmNPI1gwKGFD0EPQfNgDS5MEwg3C84gKgLElU6OIAAAyLr2aXzcOrAAAAAElFTkSuQmCC"/></div></div></div></div>
+<div class="icard" data-cat="Armure — Titane"><div class="ih"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAe0lEQVR4Xr2RwQnAIAxF3cCb597d0DF6ywzd0ZQvDZjGFmOhwkPyTR5IAjOHL5jAiwm86OI6OWceIe+vAjQSkaGUwiml1vQokOFaa+MuEMmUYDQ8LQD93zHkEuCOMSpE8o8ATUsCWaOsqz/IwLYfeqYvVjCBFxN4MYGXE3+Uh7f2+7QcAAAAAElFTkSuQmCC" class="iico"/><div><h3 class="iname">Casque en Titane</h3><span class="ibadge">Armure — Titane</span></div></div><p class="idesc">Tier supérieur à l'améthyste, protection accrue.</p><div class="istats"><div class="stat"><span class="sl">⚔ Durabilité</span><span class="sv">2500</span></div><div class="stat"><span class="sl">🛡 Armure</span><span class="sv">+4.0 Armure (Tête)</span></div><div class="stat"><span class="sl">📦 Stack</span><span class="sv">1</span></div></div><div class="iobt"><span class="olab">📍 Obtention :</span> Craft</div><div class="rsec"><div class="rl">// CRAFT</div><div class="crow"><div class="cg"><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWTsQ3EIAxFswxDsAolbMAi6ehoqTLYbeHISCD8cbjjYumlsPRelCAOIjreMC12+XmMMcTgfjlNYmKMla8RlEoplFLqqBFNQvExgtJKtNYKaoQfLHEEBZRCCAIRyDn3yEpinHOVHmCZ8d6rUhNGxCew2MCAJjXEKYwBfJsqjXN+rh4Z//BS0uYvCS/HLtNilxuNkM+4NEYq4gAAAABJRU5ErkJggg=="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWTsQ3EIAxFswxDsAolbMAi6ehoqTLYbeHISCD8cbjjYumlsPRelCAOIjreMC12+XmMMcTgfjlNYmKMla8RlEoplFLqqBFNQvExgtJKtNYKaoQfLHEEBZRCCAIRyDn3yEpinHOVHmCZ8d6rUhNGxCew2MCAJjXEKYwBfJsqjXN+rh4Z//BS0uYvCS/HLtNilxuNkM+4NEYq4gAAAABJRU5ErkJggg=="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWTsQ3EIAxFswxDsAolbMAi6ehoqTLYbeHISCD8cbjjYumlsPRelCAOIjreMC12+XmMMcTgfjlNYmKMla8RlEoplFLqqBFNQvExgtJKtNYKaoQfLHEEBZRCCAIRyDn3yEpinHOVHmCZ8d6rUhNGxCew2MCAJjXEKYwBfJsqjXN+rh4Z//BS0uYvCS/HLtNilxuNkM+4NEYq4gAAAABJRU5ErkJggg=="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWTsQ3EIAxFswxDsAolbMAi6ehoqTLYbeHISCD8cbjjYumlsPRelCAOIjreMC12+XmMMcTgfjlNYmKMla8RlEoplFLqqBFNQvExgtJKtNYKaoQfLHEEBZRCCAIRyDn3yEpinHOVHmCZ8d6rUhNGxCew2MCAJjXEKYwBfJsqjXN+rh4Z//BS0uYvCS/HLtNilxuNkM+4NEYq4gAAAABJRU5ErkJggg=="/></div><div class="cs empty"></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWTsQ3EIAxFswxDsAolbMAi6ehoqTLYbeHISCD8cbjjYumlsPRelCAOIjreMC12+XmMMcTgfjlNYmKMla8RlEoplFLqqBFNQvExgtJKtNYKaoQfLHEEBZRCCAIRyDn3yEpinHOVHmCZ8d6rUhNGxCew2MCAJjXEKYwBfJsqjXN+rh4Z//BS0uYvCS/HLtNilxuNkM+4NEYq4gAAAABJRU5ErkJggg=="/></div><div class="cs empty"></div><div class="cs empty"></div><div class="cs empty"></div></div><div class="ca"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACVSURBVGhD7dFLCsAgDEVR3f+i2w58UIqlfmJM4Z6JToJckwAAAACg4riU6zK5nEvdQ/KlXE25h4h10LYQsQraHiKzQdXhlodXGQ0KFyK9QWFDpDUofIh8Bf0mRN6CfhcizyA24u0tQMKHfAVI2JDWAAkX0hsgQ0O9Wj5mNEC2h8wGyLYQqwBxD7EOcFXbCAAAAIAxKZ04c1QM+NFnRAAAAABJRU5ErkJggg=="/></div><div class="cs res"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAe0lEQVR4Xr2RwQnAIAxF3cCb597d0DF6ywzd0ZQvDZjGFmOhwkPyTR5IAjOHL5jAiwm86OI6OWceIe+vAjQSkaGUwiml1vQokOFaa+MuEMmUYDQ8LQD93zHkEuCOMSpE8o8ATUsCWaOsqz/IwLYfeqYvVjCBFxN4MYGXE3+Uh7f2+7QcAAAAAElFTkSuQmCC"/></div></div></div></div>
+<div class="icard" data-cat="Armure — Titane"><div class="ih"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWQ0Q3AIAhEncLv/ruhY/TPGbqjNGdDgwikjSTXGLh7UhMRpR0tjb96PqJKKQRNTac/AdjQWqNa62TmPoRzznnMXoA0MIBNGiDnLkDeZs1MAJoY9t6HdEiGF4Bc82v4OK/5EdHkLTyFAOuxtGQYtQAw1CHvdhdg/QaHGcB+FxApBKAiiFwfZQJggNESZiZgRzeItRao6a1AXAAAAABJRU5ErkJggg==" class="iico"/><div><h3 class="iname">Plastron en Titane</h3><span class="ibadge">Armure — Titane</span></div></div><p class="idesc">Protection maximale pour le torse.</p><div class="istats"><div class="stat"><span class="sl">⚔ Durabilité</span><span class="sv">2500</span></div><div class="stat"><span class="sl">🛡 Armure</span><span class="sv">+10.0 Armure (Corps)</span></div><div class="stat"><span class="sl">📦 Stack</span><span class="sv">1</span></div></div><div class="iobt"><span class="olab">📍 Obtention :</span> Craft</div><div class="rsec"><div class="rl">// CRAFT</div><div class="crow"><div class="cg"><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWTsQ3EIAxFswxDsAolbMAi6ehoqTLYbeHISCD8cbjjYumlsPRelCAOIjreMC12+XmMMcTgfjlNYmKMla8RlEoplFLqqBFNQvExgtJKtNYKaoQfLHEEBZRCCAIRyDn3yEpinHOVHmCZ8d6rUhNGxCew2MCAJjXEKYwBfJsqjXN+rh4Z//BS0uYvCS/HLtNilxuNkM+4NEYq4gAAAABJRU5ErkJggg=="/></div><div class="cs empty"></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWTsQ3EIAxFswxDsAolbMAi6ehoqTLYbeHISCD8cbjjYumlsPRelCAOIjreMC12+XmMMcTgfjlNYmKMla8RlEoplFLqqBFNQvExgtJKtNYKaoQfLHEEBZRCCAIRyDn3yEpinHOVHmCZ8d6rUhNGxCew2MCAJjXEKYwBfJsqjXN+rh4Z//BS0uYvCS/HLtNilxuNkM+4NEYq4gAAAABJRU5ErkJggg=="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWTsQ3EIAxFswxDsAolbMAi6ehoqTLYbeHISCD8cbjjYumlsPRelCAOIjreMC12+XmMMcTgfjlNYmKMla8RlEoplFLqqBFNQvExgtJKtNYKaoQfLHEEBZRCCAIRyDn3yEpinHOVHmCZ8d6rUhNGxCew2MCAJjXEKYwBfJsqjXN+rh4Z//BS0uYvCS/HLtNilxuNkM+4NEYq4gAAAABJRU5ErkJggg=="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWTsQ3EIAxFswxDsAolbMAi6ehoqTLYbeHISCD8cbjjYumlsPRelCAOIjreMC12+XmMMcTgfjlNYmKMla8RlEoplFLqqBFNQvExgtJKtNYKaoQfLHEEBZRCCAIRyDn3yEpinHOVHmCZ8d6rUhNGxCew2MCAJjXEKYwBfJsqjXN+rh4Z//BS0uYvCS/HLtNilxuNkM+4NEYq4gAAAABJRU5ErkJggg=="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWTsQ3EIAxFswxDsAolbMAi6ehoqTLYbeHISCD8cbjjYumlsPRelCAOIjreMC12+XmMMcTgfjlNYmKMla8RlEoplFLqqBFNQvExgtJKtNYKaoQfLHEEBZRCCAIRyDn3yEpinHOVHmCZ8d6rUhNGxCew2MCAJjXEKYwBfJsqjXN+rh4Z//BS0uYvCS/HLtNilxuNkM+4NEYq4gAAAABJRU5ErkJggg=="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWTsQ3EIAxFswxDsAolbMAi6ehoqTLYbeHISCD8cbjjYumlsPRelCAOIjreMC12+XmMMcTgfjlNYmKMla8RlEoplFLqqBFNQvExgtJKtNYKaoQfLHEEBZRCCAIRyDn3yEpinHOVHmCZ8d6rUhNGxCew2MCAJjXEKYwBfJsqjXN+rh4Z//BS0uYvCS/HLtNilxuNkM+4NEYq4gAAAABJRU5ErkJggg=="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWTsQ3EIAxFswxDsAolbMAi6ehoqTLYbeHISCD8cbjjYumlsPRelCAOIjreMC12+XmMMcTgfjlNYmKMla8RlEoplFLqqBFNQvExgtJKtNYKaoQfLHEEBZRCCAIRyDn3yEpinHOVHmCZ8d6rUhNGxCew2MCAJjXEKYwBfJsqjXN+rh4Z//BS0uYvCS/HLtNilxuNkM+4NEYq4gAAAABJRU5ErkJggg=="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWTsQ3EIAxFswxDsAolbMAi6ehoqTLYbeHISCD8cbjjYumlsPRelCAOIjreMC12+XmMMcTgfjlNYmKMla8RlEoplFLqqBFNQvExgtJKtNYKaoQfLHEEBZRCCAIRyDn3yEpinHOVHmCZ8d6rUhNGxCew2MCAJjXEKYwBfJsqjXN+rh4Z//BS0uYvCS/HLtNilxuNkM+4NEYq4gAAAABJRU5ErkJggg=="/></div></div><div class="ca"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACVSURBVGhD7dFLCsAgDEVR3f+i2w58UIqlfmJM4Z6JToJckwAAAACg4riU6zK5nEvdQ/KlXE25h4h10LYQsQraHiKzQdXhlodXGQ0KFyK9QWFDpDUofIh8Bf0mRN6CfhcizyA24u0tQMKHfAVI2JDWAAkX0hsgQ0O9Wj5mNEC2h8wGyLYQqwBxD7EOcFXbCAAAAIAxKZ04c1QM+NFnRAAAAABJRU5ErkJggg=="/></div><div class="cs res"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWQ0Q3AIAhEncLv/ruhY/TPGbqjNGdDgwikjSTXGLh7UhMRpR0tjb96PqJKKQRNTac/AdjQWqNa62TmPoRzznnMXoA0MIBNGiDnLkDeZs1MAJoY9t6HdEiGF4Bc82v4OK/5EdHkLTyFAOuxtGQYtQAw1CHvdhdg/QaHGcB+FxApBKAiiFwfZQJggNESZiZgRzeItRao6a1AXAAAAABJRU5ErkJggg=="/></div></div></div></div>
+<div class="icard" data-cat="Armure — Titane"><div class="ih"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAb0lEQVR4XuWRsQ3AMAgEmYI6PRt6jHTMkB0heUuWSCIc2S6DdAWv5xrI3WmFVzDKfblGRLwHOqkABVVNKaU4M/unwMwqSwKUI0OCdoQymBKguO0HgWc+JGifmRLU6x8K4gujIOZdAQqNKIh5KpjhBD60YtgbUq7BAAAAAElFTkSuQmCC" class="iico"/><div><h3 class="iname">Jambières en Titane</h3><span class="ibadge">Armure — Titane</span></div></div><p class="idesc">Protection renforcée des jambes.</p><div class="istats"><div class="stat"><span class="sl">⚔ Durabilité</span><span class="sv">2500</span></div><div class="stat"><span class="sl">🛡 Armure</span><span class="sv">+8.0 Armure (Jambes)</span></div><div class="stat"><span class="sl">📦 Stack</span><span class="sv">1</span></div></div><div class="iobt"><span class="olab">📍 Obtention :</span> Craft</div><div class="rsec"><div class="rl">// CRAFT</div><div class="crow"><div class="cg"><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWTsQ3EIAxFswxDsAolbMAi6ehoqTLYbeHISCD8cbjjYumlsPRelCAOIjreMC12+XmMMcTgfjlNYmKMla8RlEoplFLqqBFNQvExgtJKtNYKaoQfLHEEBZRCCAIRyDn3yEpinHOVHmCZ8d6rUhNGxCew2MCAJjXEKYwBfJsqjXN+rh4Z//BS0uYvCS/HLtNilxuNkM+4NEYq4gAAAABJRU5ErkJggg=="/></div><div class="cs empty"></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWTsQ3EIAxFswxDsAolbMAi6ehoqTLYbeHISCD8cbjjYumlsPRelCAOIjreMC12+XmMMcTgfjlNYmKMla8RlEoplFLqqBFNQvExgtJKtNYKaoQfLHEEBZRCCAIRyDn3yEpinHOVHmCZ8d6rUhNGxCew2MCAJjXEKYwBfJsqjXN+rh4Z//BS0uYvCS/HLtNilxuNkM+4NEYq4gAAAABJRU5ErkJggg=="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWTsQ3EIAxFswxDsAolbMAi6ehoqTLYbeHISCD8cbjjYumlsPRelCAOIjreMC12+XmMMcTgfjlNYmKMla8RlEoplFLqqBFNQvExgtJKtNYKaoQfLHEEBZRCCAIRyDn3yEpinHOVHmCZ8d6rUhNGxCew2MCAJjXEKYwBfJsqjXN+rh4Z//BS0uYvCS/HLtNilxuNkM+4NEYq4gAAAABJRU5ErkJggg=="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWTsQ3EIAxFswxDsAolbMAi6ehoqTLYbeHISCD8cbjjYumlsPRelCAOIjreMC12+XmMMcTgfjlNYmKMla8RlEoplFLqqBFNQvExgtJKtNYKaoQfLHEEBZRCCAIRyDn3yEpinHOVHmCZ8d6rUhNGxCew2MCAJjXEKYwBfJsqjXN+rh4Z//BS0uYvCS/HLtNilxuNkM+4NEYq4gAAAABJRU5ErkJggg=="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWTsQ3EIAxFswxDsAolbMAi6ehoqTLYbeHISCD8cbjjYumlsPRelCAOIjreMC12+XmMMcTgfjlNYmKMla8RlEoplFLqqBFNQvExgtJKtNYKaoQfLHEEBZRCCAIRyDn3yEpinHOVHmCZ8d6rUhNGxCew2MCAJjXEKYwBfJsqjXN+rh4Z//BS0uYvCS/HLtNilxuNkM+4NEYq4gAAAABJRU5ErkJggg=="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWTsQ3EIAxFswxDsAolbMAi6ehoqTLYbeHISCD8cbjjYumlsPRelCAOIjreMC12+XmMMcTgfjlNYmKMla8RlEoplFLqqBFNQvExgtJKtNYKaoQfLHEEBZRCCAIRyDn3yEpinHOVHmCZ8d6rUhNGxCew2MCAJjXEKYwBfJsqjXN+rh4Z//BS0uYvCS/HLtNilxuNkM+4NEYq4gAAAABJRU5ErkJggg=="/></div><div class="cs empty"></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWTsQ3EIAxFswxDsAolbMAi6ehoqTLYbeHISCD8cbjjYumlsPRelCAOIjreMC12+XmMMcTgfjlNYmKMla8RlEoplFLqqBFNQvExgtJKtNYKaoQfLHEEBZRCCAIRyDn3yEpinHOVHmCZ8d6rUhNGxCew2MCAJjXEKYwBfJsqjXN+rh4Z//BS0uYvCS/HLtNilxuNkM+4NEYq4gAAAABJRU5ErkJggg=="/></div></div><div class="ca"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACVSURBVGhD7dFLCsAgDEVR3f+i2w58UIqlfmJM4Z6JToJckwAAAACg4riU6zK5nEvdQ/KlXE25h4h10LYQsQraHiKzQdXhlodXGQ0KFyK9QWFDpDUofIh8Bf0mRN6CfhcizyA24u0tQMKHfAVI2JDWAAkX0hsgQ0O9Wj5mNEC2h8wGyLYQqwBxD7EOcFXbCAAAAIAxKZ04c1QM+NFnRAAAAABJRU5ErkJggg=="/></div><div class="cs res"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAb0lEQVR4XuWRsQ3AMAgEmYI6PRt6jHTMkB0heUuWSCIc2S6DdAWv5xrI3WmFVzDKfblGRLwHOqkABVVNKaU4M/unwMwqSwKUI0OCdoQymBKguO0HgWc+JGifmRLU6x8K4gujIOZdAQqNKIh5KpjhBD60YtgbUq7BAAAAAElFTkSuQmCC"/></div></div></div></div>
+<div class="icard" data-cat="Armure — Titane"><div class="ih"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAhklEQVR4XsWRQQ6AIAwEfQVn7/yQZ3jjDf6RmsYs2VJCbDhIsh6m21HiISLHThyIxoFo3gednLMgK6bHCbRQa5VSiqSUjGDGp4LWWi9iNvKlgN/Egs9f8J8A91wJEPyNLuCCLs8EyrjT5xBgEcPzus31lI0dI1CAYJkFyrhjBDtxIBoHonkAl6AkkgyCt7EAAAAASUVORK5CYII=" class="iico"/><div><h3 class="iname">Bottes en Titane</h3><span class="ibadge">Armure — Titane</span></div></div><p class="idesc">Bottes en titane pour les pieds.</p><div class="istats"><div class="stat"><span class="sl">⚔ Durabilité</span><span class="sv">2500</span></div><div class="stat"><span class="sl">🛡 Armure</span><span class="sv">+4.0 Armure (Pieds)</span></div><div class="stat"><span class="sl">📦 Stack</span><span class="sv">1</span></div></div><div class="iobt"><span class="olab">📍 Obtention :</span> Craft</div><div class="rsec"><div class="rl">// CRAFT</div><div class="crow"><div class="cg"><div class="cs empty"></div><div class="cs empty"></div><div class="cs empty"></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWTsQ3EIAxFswxDsAolbMAi6ehoqTLYbeHISCD8cbjjYumlsPRelCAOIjreMC12+XmMMcTgfjlNYmKMla8RlEoplFLqqBFNQvExgtJKtNYKaoQfLHEEBZRCCAIRyDn3yEpinHOVHmCZ8d6rUhNGxCew2MCAJjXEKYwBfJsqjXN+rh4Z//BS0uYvCS/HLtNilxuNkM+4NEYq4gAAAABJRU5ErkJggg=="/></div><div class="cs empty"></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWTsQ3EIAxFswxDsAolbMAi6ehoqTLYbeHISCD8cbjjYumlsPRelCAOIjreMC12+XmMMcTgfjlNYmKMla8RlEoplFLqqBFNQvExgtJKtNYKaoQfLHEEBZRCCAIRyDn3yEpinHOVHmCZ8d6rUhNGxCew2MCAJjXEKYwBfJsqjXN+rh4Z//BS0uYvCS/HLtNilxuNkM+4NEYq4gAAAABJRU5ErkJggg=="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWTsQ3EIAxFswxDsAolbMAi6ehoqTLYbeHISCD8cbjjYumlsPRelCAOIjreMC12+XmMMcTgfjlNYmKMla8RlEoplFLqqBFNQvExgtJKtNYKaoQfLHEEBZRCCAIRyDn3yEpinHOVHmCZ8d6rUhNGxCew2MCAJjXEKYwBfJsqjXN+rh4Z//BS0uYvCS/HLtNilxuNkM+4NEYq4gAAAABJRU5ErkJggg=="/></div><div class="cs empty"></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWTsQ3EIAxFswxDsAolbMAi6ehoqTLYbeHISCD8cbjjYumlsPRelCAOIjreMC12+XmMMcTgfjlNYmKMla8RlEoplFLqqBFNQvExgtJKtNYKaoQfLHEEBZRCCAIRyDn3yEpinHOVHmCZ8d6rUhNGxCew2MCAJjXEKYwBfJsqjXN+rh4Z//BS0uYvCS/HLtNilxuNkM+4NEYq4gAAAABJRU5ErkJggg=="/></div></div><div class="ca"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACVSURBVGhD7dFLCsAgDEVR3f+i2w58UIqlfmJM4Z6JToJckwAAAACg4riU6zK5nEvdQ/KlXE25h4h10LYQsQraHiKzQdXhlodXGQ0KFyK9QWFDpDUofIh8Bf0mRN6CfhcizyA24u0tQMKHfAVI2JDWAAkX0hsgQ0O9Wj5mNEC2h8wGyLYQqwBxD7EOcFXbCAAAAIAxKZ04c1QM+NFnRAAAAABJRU5ErkJggg=="/></div><div class="cs res"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAhklEQVR4XsWRQQ6AIAwEfQVn7/yQZ3jjDf6RmsYs2VJCbDhIsh6m21HiISLHThyIxoFo3gednLMgK6bHCbRQa5VSiqSUjGDGp4LWWi9iNvKlgN/Egs9f8J8A91wJEPyNLuCCLs8EyrjT5xBgEcPzus31lI0dI1CAYJkFyrhjBDtxIBoHonkAl6AkkgyCt7EAAAAASUVORK5CYII="/></div></div></div></div>
+<div class="icard" data-cat="Armes — Titane"><div class="ih"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA8UlEQVR4XpWSIQ7CQBBFx2NwtUVU4qlCkCBQTThCkVwAi8AhIKQaDZKES3AMFHcgWfiz/DIsbRYm+abd9zozW5E/K8syZxO+bywL5HleJypogoqi0EQFFiSElGX5LRgO5MNE2EKMhZ/lYSuwMKGqqjShIJmuvMBdvQQPrIA7oCQU1C0Dvpy9BOGByeEuvfVNpa0wBae9uM1S3GLuJTgEGJKogBKG3XCEn68OO9CdyFvCq4zCqFm/63ajpO7EjvMzPE47Lt0etRPshLejV9ZUOGBhPOMoWCxHaRXgK4TtIUp0J6//BDGoL8xpWw3LisJ3qAdqJQ6cBqNIUgAAAABJRU5ErkJggg==" class="iico"/><div><h3 class="iname">Épée en Titane</h3><span class="ibadge">Armes — Titane</span></div></div><p class="idesc">Épée en titane, dévastatrice en PvP.</p><div class="istats"><div class="stat"><span class="sl">⚔ Durabilité</span><span class="sv">2500</span></div><div class="stat"><span class="sl">📦 Stack</span><span class="sv">1</span></div></div><div class="iobt"><span class="olab">📍 Obtention :</span> Craft</div><div class="rsec"><div class="rl">// CRAFT</div><div class="crow"><div class="cg"><div class="cs empty"></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWTsQ3EIAxFswxDsAolbMAi6ehoqTLYbeHISCD8cbjjYumlsPRelCAOIjreMC12+XmMMcTgfjlNYmKMla8RlEoplFLqqBFNQvExgtJKtNYKaoQfLHEEBZRCCAIRyDn3yEpinHOVHmCZ8d6rUhNGxCew2MCAJjXEKYwBfJsqjXN+rh4Z//BS0uYvCS/HLtNilxuNkM+4NEYq4gAAAABJRU5ErkJggg=="/></div><div class="cs empty"></div><div class="cs empty"></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWTsQ3EIAxFswxDsAolbMAi6ehoqTLYbeHISCD8cbjjYumlsPRelCAOIjreMC12+XmMMcTgfjlNYmKMla8RlEoplFLqqBFNQvExgtJKtNYKaoQfLHEEBZRCCAIRyDn3yEpinHOVHmCZ8d6rUhNGxCew2MCAJjXEKYwBfJsqjXN+rh4Z//BS0uYvCS/HLtNilxuNkM+4NEYq4gAAAABJRU5ErkJggg=="/></div><div class="cs empty"></div><div class="cs empty"></div><div class="cs txt"><span>Bâton</span></div><div class="cs empty"></div></div><div class="ca"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACVSURBVGhD7dFLCsAgDEVR3f+i2w58UIqlfmJM4Z6JToJckwAAAACg4riU6zK5nEvdQ/KlXE25h4h10LYQsQraHiKzQdXhlodXGQ0KFyK9QWFDpDUofIh8Bf0mRN6CfhcizyA24u0tQMKHfAVI2JDWAAkX0hsgQ0O9Wj5mNEC2h8wGyLYQqwBxD7EOcFXbCAAAAIAxKZ04c1QM+NFnRAAAAABJRU5ErkJggg=="/></div><div class="cs res"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA8UlEQVR4XpWSIQ7CQBBFx2NwtUVU4qlCkCBQTThCkVwAi8AhIKQaDZKES3AMFHcgWfiz/DIsbRYm+abd9zozW5E/K8syZxO+bywL5HleJypogoqi0EQFFiSElGX5LRgO5MNE2EKMhZ/lYSuwMKGqqjShIJmuvMBdvQQPrIA7oCQU1C0Dvpy9BOGByeEuvfVNpa0wBae9uM1S3GLuJTgEGJKogBKG3XCEn68OO9CdyFvCq4zCqFm/63ajpO7EjvMzPE47Lt0etRPshLejV9ZUOGBhPOMoWCxHaRXgK4TtIUp0J6//BDGoL8xpWw3LisJ3qAdqJQ6cBqNIUgAAAABJRU5ErkJggg=="/></div></div></div></div>
+<div class="icard" data-cat="Outils — Titane"><div class="ih"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA5klEQVR4Xo2SsQrCMBRF397FrZu4FFzczeQgOBf6CXH0B1wd3AXJ7D8I/oQf9eyN3JDGNPHChfKSe177XkVVhe66Tum4nvNxs5D7vpVJyBgTPAfbbUVhhA+rRsIBxEDf91kYgu+X6O3yhfhcDKBw2VrrQYSx8/Mhej5VAO1w9RDnnAelnWHcKwJQ42unnVHnnSwAQi3XmTOpAqC0M+dCSBEw7hmrCp05k78ADI971vWyCXVupwiYC1Pxf4LnMCwc1sIQVxwACHNItTCEhj8ATJqrKoUpQvync9fxutJAThNAbA61ZgI+I+Z/3p8amNEAAAAASUVORK5CYII=" class="iico"/><div><h3 class="iname">Pioche en Titane</h3><span class="ibadge">Outils — Titane</span></div></div><p class="idesc">Pour les minerais les plus résistants.</p><div class="istats"><div class="stat"><span class="sl">⚔ Durabilité</span><span class="sv">2500</span></div><div class="stat"><span class="sl">📦 Stack</span><span class="sv">1</span></div></div><div class="iobt"><span class="olab">📍 Obtention :</span> Craft</div><div class="rsec"><div class="rl">// CRAFT</div><div class="crow"><div class="cg"><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWTsQ3EIAxFswxDsAolbMAi6ehoqTLYbeHISCD8cbjjYumlsPRelCAOIjreMC12+XmMMcTgfjlNYmKMla8RlEoplFLqqBFNQvExgtJKtNYKaoQfLHEEBZRCCAIRyDn3yEpinHOVHmCZ8d6rUhNGxCew2MCAJjXEKYwBfJsqjXN+rh4Z//BS0uYvCS/HLtNilxuNkM+4NEYq4gAAAABJRU5ErkJggg=="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWTsQ3EIAxFswxDsAolbMAi6ehoqTLYbeHISCD8cbjjYumlsPRelCAOIjreMC12+XmMMcTgfjlNYmKMla8RlEoplFLqqBFNQvExgtJKtNYKaoQfLHEEBZRCCAIRyDn3yEpinHOVHmCZ8d6rUhNGxCew2MCAJjXEKYwBfJsqjXN+rh4Z//BS0uYvCS/HLtNilxuNkM+4NEYq4gAAAABJRU5ErkJggg=="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWTsQ3EIAxFswxDsAolbMAi6ehoqTLYbeHISCD8cbjjYumlsPRelCAOIjreMC12+XmMMcTgfjlNYmKMla8RlEoplFLqqBFNQvExgtJKtNYKaoQfLHEEBZRCCAIRyDn3yEpinHOVHmCZ8d6rUhNGxCew2MCAJjXEKYwBfJsqjXN+rh4Z//BS0uYvCS/HLtNilxuNkM+4NEYq4gAAAABJRU5ErkJggg=="/></div><div class="cs empty"></div><div class="cs txt"><span>Bâton</span></div><div class="cs empty"></div><div class="cs empty"></div><div class="cs txt"><span>Bâton</span></div><div class="cs empty"></div></div><div class="ca"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACVSURBVGhD7dFLCsAgDEVR3f+i2w58UIqlfmJM4Z6JToJckwAAAACg4riU6zK5nEvdQ/KlXE25h4h10LYQsQraHiKzQdXhlodXGQ0KFyK9QWFDpDUofIh8Bf0mRN6CfhcizyA24u0tQMKHfAVI2JDWAAkX0hsgQ0O9Wj5mNEC2h8wGyLYQqwBxD7EOcFXbCAAAAIAxKZ04c1QM+NFnRAAAAABJRU5ErkJggg=="/></div><div class="cs res"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA5klEQVR4Xo2SsQrCMBRF397FrZu4FFzczeQgOBf6CXH0B1wd3AXJ7D8I/oQf9eyN3JDGNPHChfKSe177XkVVhe66Tum4nvNxs5D7vpVJyBgTPAfbbUVhhA+rRsIBxEDf91kYgu+X6O3yhfhcDKBw2VrrQYSx8/Mhej5VAO1w9RDnnAelnWHcKwJQ42unnVHnnSwAQi3XmTOpAqC0M+dCSBEw7hmrCp05k78ADI971vWyCXVupwiYC1Pxf4LnMCwc1sIQVxwACHNItTCEhj8ATJqrKoUpQvync9fxutJAThNAbA61ZgI+I+Z/3p8amNEAAAAASUVORK5CYII="/></div></div></div></div>
+<div class="icard" data-cat="Outils — Titane"><div class="ih"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA+ElEQVR4Xo2QMQ7CMAxFs7MwVGLpwNKt2ak6oAqJuXPXMnTgAtyDpRt34EgcxOgbOThOghi+Grn+79t2ROR+qWkasjWtpCAmUdd14S2w48ERlAB04ziONM8zC2+AgtFlADC1bcuNEIx6Cja8HD0fX3MCQKMk42tHhvl2/byrqvoCdJIeGRPZZEjuEgFQnKYpMdtkfdhkgmEY+FtKFjh6lmVxWEPfgFXaWa8GQHQDrVKyNq/ryulFQG5nnSxKABe/pftpF5JRQ6PcCG/vfTBHADGf9xs2ihnH6vuejVBd1zEASTmzACAA7OgBgF1zZguxxgDQB7M//9Ebj4AEwK/W7IkAAAAASUVORK5CYII=" class="iico"/><div><h3 class="iname">Hache en Titane</h3><span class="ibadge">Outils — Titane</span></div></div><p class="idesc">Polyvalente bois et combat.</p><div class="istats"><div class="stat"><span class="sl">⚔ Durabilité</span><span class="sv">2500</span></div><div class="stat"><span class="sl">📦 Stack</span><span class="sv">1</span></div></div><div class="iobt"><span class="olab">📍 Obtention :</span> Craft</div><div class="rsec"><div class="rl">// CRAFT</div><div class="crow"><div class="cg"><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWTsQ3EIAxFswxDsAolbMAi6ehoqTLYbeHISCD8cbjjYumlsPRelCAOIjreMC12+XmMMcTgfjlNYmKMla8RlEoplFLqqBFNQvExgtJKtNYKaoQfLHEEBZRCCAIRyDn3yEpinHOVHmCZ8d6rUhNGxCew2MCAJjXEKYwBfJsqjXN+rh4Z//BS0uYvCS/HLtNilxuNkM+4NEYq4gAAAABJRU5ErkJggg=="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWTsQ3EIAxFswxDsAolbMAi6ehoqTLYbeHISCD8cbjjYumlsPRelCAOIjreMC12+XmMMcTgfjlNYmKMla8RlEoplFLqqBFNQvExgtJKtNYKaoQfLHEEBZRCCAIRyDn3yEpinHOVHmCZ8d6rUhNGxCew2MCAJjXEKYwBfJsqjXN+rh4Z//BS0uYvCS/HLtNilxuNkM+4NEYq4gAAAABJRU5ErkJggg=="/></div><div class="cs empty"></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWTsQ3EIAxFswxDsAolbMAi6ehoqTLYbeHISCD8cbjjYumlsPRelCAOIjreMC12+XmMMcTgfjlNYmKMla8RlEoplFLqqBFNQvExgtJKtNYKaoQfLHEEBZRCCAIRyDn3yEpinHOVHmCZ8d6rUhNGxCew2MCAJjXEKYwBfJsqjXN+rh4Z//BS0uYvCS/HLtNilxuNkM+4NEYq4gAAAABJRU5ErkJggg=="/></div><div class="cs txt"><span>Bâton</span></div><div class="cs empty"></div><div class="cs empty"></div><div class="cs txt"><span>Bâton</span></div><div class="cs empty"></div></div><div class="ca"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACVSURBVGhD7dFLCsAgDEVR3f+i2w58UIqlfmJM4Z6JToJckwAAAACg4riU6zK5nEvdQ/KlXE25h4h10LYQsQraHiKzQdXhlodXGQ0KFyK9QWFDpDUofIh8Bf0mRN6CfhcizyA24u0tQMKHfAVI2JDWAAkX0hsgQ0O9Wj5mNEC2h8wGyLYQqwBxD7EOcFXbCAAAAIAxKZ04c1QM+NFnRAAAAABJRU5ErkJggg=="/></div><div class="cs res"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA+ElEQVR4Xo2QMQ7CMAxFs7MwVGLpwNKt2ak6oAqJuXPXMnTgAtyDpRt34EgcxOgbOThOghi+Grn+79t2ROR+qWkasjWtpCAmUdd14S2w48ERlAB04ziONM8zC2+AgtFlADC1bcuNEIx6Cja8HD0fX3MCQKMk42tHhvl2/byrqvoCdJIeGRPZZEjuEgFQnKYpMdtkfdhkgmEY+FtKFjh6lmVxWEPfgFXaWa8GQHQDrVKyNq/ryulFQG5nnSxKABe/pftpF5JRQ6PcCG/vfTBHADGf9xs2ihnH6vuejVBd1zEASTmzACAA7OgBgF1zZguxxgDQB7M//9Ebj4AEwK/W7IkAAAAASUVORK5CYII="/></div></div></div></div>
+<div class="icard" data-cat="Outils — Titane"><div class="ih"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAv0lEQVR4XmNgIABUVVX/gzC6eIquAMMUZ3F0YVQA0mhpaQnGyAYBNf8HYTcFbnQtCADTHBAQADcAJA7SCLQZpBnDVXCArDk5ORnFEJI1T5s2DcMQmDp0vWAAMwDmZ3sLBjAGGYRsCE4DQAAmCdJ4ehvD/4lNEEOQXYLsGpwApAmkuTIH4Qps3sEKYKEN8wJIMcmakUMbpIEizUT5G5tmGMAb8jB/4tKMF6BHFbo8QYAeVejyBAEoS8K8gC5HDAAApii5tdyFbJsAAAAASUVORK5CYII=" class="iico"/><div><h3 class="iname">Hammer en Titane</h3><span class="ibadge">Outils — Titane</span></div></div><p class="idesc">Mine une zone 3×3 en un coup.</p><div class="istats"><div class="stat"><span class="sl">⚔ Durabilité</span><span class="sv">2500</span></div><div class="stat"><span class="sl">📦 Stack</span><span class="sv">1</span></div></div><div class="iobt"><span class="olab">📍 Obtention :</span> Craft</div><div class="rsec"><div class="rl">// CRAFT</div><div class="crow"><div class="cg"><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWTsQ3EIAxFswxDsAolbMAi6ehoqTLYbeHISCD8cbjjYumlsPRelCAOIjreMC12+XmMMcTgfjlNYmKMla8RlEoplFLqqBFNQvExgtJKtNYKaoQfLHEEBZRCCAIRyDn3yEpinHOVHmCZ8d6rUhNGxCew2MCAJjXEKYwBfJsqjXN+rh4Z//BS0uYvCS/HLtNilxuNkM+4NEYq4gAAAABJRU5ErkJggg=="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWTsQ3EIAxFswxDsAolbMAi6ehoqTLYbeHISCD8cbjjYumlsPRelCAOIjreMC12+XmMMcTgfjlNYmKMla8RlEoplFLqqBFNQvExgtJKtNYKaoQfLHEEBZRCCAIRyDn3yEpinHOVHmCZ8d6rUhNGxCew2MCAJjXEKYwBfJsqjXN+rh4Z//BS0uYvCS/HLtNilxuNkM+4NEYq4gAAAABJRU5ErkJggg=="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWTsQ3EIAxFswxDsAolbMAi6ehoqTLYbeHISCD8cbjjYumlsPRelCAOIjreMC12+XmMMcTgfjlNYmKMla8RlEoplFLqqBFNQvExgtJKtNYKaoQfLHEEBZRCCAIRyDn3yEpinHOVHmCZ8d6rUhNGxCew2MCAJjXEKYwBfJsqjXN+rh4Z//BS0uYvCS/HLtNilxuNkM+4NEYq4gAAAABJRU5ErkJggg=="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWTsQ3EIAxFswxDsAolbMAi6ehoqTLYbeHISCD8cbjjYumlsPRelCAOIjreMC12+XmMMcTgfjlNYmKMla8RlEoplFLqqBFNQvExgtJKtNYKaoQfLHEEBZRCCAIRyDn3yEpinHOVHmCZ8d6rUhNGxCew2MCAJjXEKYwBfJsqjXN+rh4Z//BS0uYvCS/HLtNilxuNkM+4NEYq4gAAAABJRU5ErkJggg=="/></div><div class="cs txt"><span>Bâton</span></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWTsQ3EIAxFswxDsAolbMAi6ehoqTLYbeHISCD8cbjjYumlsPRelCAOIjreMC12+XmMMcTgfjlNYmKMla8RlEoplFLqqBFNQvExgtJKtNYKaoQfLHEEBZRCCAIRyDn3yEpinHOVHmCZ8d6rUhNGxCew2MCAJjXEKYwBfJsqjXN+rh4Z//BS0uYvCS/HLtNilxuNkM+4NEYq4gAAAABJRU5ErkJggg=="/></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWTsQ3EIAxFswxDsAolbMAi6ehoqTLYbeHISCD8cbjjYumlsPRelCAOIjreMC12+XmMMcTgfjlNYmKMla8RlEoplFLqqBFNQvExgtJKtNYKaoQfLHEEBZRCCAIRyDn3yEpinHOVHmCZ8d6rUhNGxCew2MCAJjXEKYwBfJsqjXN+rh4Z//BS0uYvCS/HLtNilxuNkM+4NEYq4gAAAABJRU5ErkJggg=="/></div><div class="cs txt"><span>Bâton</span></div><div class="cs"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVR4XqWTsQ3EIAxFswxDsAolbMAi6ehoqTLYbeHISCD8cbjjYumlsPRelCAOIjreMC12+XmMMcTgfjlNYmKMla8RlEoplFLqqBFNQvExgtJKtNYKaoQfLHEEBZRCCAIRyDn3yEpinHOVHmCZ8d6rUhNGxCew2MCAJjXEKYwBfJsqjXN+rh4Z//BS0uYvCS/HLtNilxuNkM+4NEYq4gAAAABJRU5ErkJggg=="/></div></div><div class="ca"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACVSURBVGhD7dFLCsAgDEVR3f+i2w58UIqlfmJM4Z6JToJckwAAAACg4riU6zK5nEvdQ/KlXE25h4h10LYQsQraHiKzQdXhlodXGQ0KFyK9QWFDpDUofIh8Bf0mRN6CfhcizyA24u0tQMKHfAVI2JDWAAkX0hsgQ0O9Wj5mNEC2h8wGyLYQqwBxD7EOcFXbCAAAAIAxKZ04c1QM+NFnRAAAAABJRU5ErkJggg=="/></div><div class="cs res"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAv0lEQVR4XmNgIABUVVX/gzC6eIquAMMUZ3F0YVQA0mhpaQnGyAYBNf8HYTcFbnQtCADTHBAQADcAJA7SCLQZpBnDVXCArDk5ORnFEJI1T5s2DcMQmDp0vWAAMwDmZ3sLBjAGGYRsCE4DQAAmCdJ4ehvD/4lNEEOQXYLsGpwApAmkuTIH4Qps3sEKYKEN8wJIMcmakUMbpIEizUT5G5tmGMAb8jB/4tKMF6BHFbo8QYAeVejyBAEoS8K8gC5HDAAApii5tdyFbJsAAAAASUVORK5CYII="/></div></div></div></div>
+<div class="icard" data-cat="Armure — Chaos"><div class="ih"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAZklEQVR4XmNgGJ5AV1f3PzaMrg4rgCrEiiUlJfEbgk8zDOM1hKoGIPsdqok4A7gYxMGa5Pg4UDBII0iOoAGyTM44DRBmhLsGOwBpFGMwASvCZoACgx9+A0AAyc8oACSGTXwUMDAAAF89YCq04uvxAAAAAElFTkSuQmCC" class="iico"/><div><h3 class="iname">Casque du Chaos</h3><span class="ibadge">Armure — Chaos</span></div></div><p class="idesc">Tier ultime, forgé du pur chaos.</p><div class="istats"><div class="stat"><span class="sl">⚔ Durabilité</span><span class="sv">3500</span></div><div class="stat"><span class="sl">🛡 Armure</span><span class="sv">+5.0 Armure (Tête)</span></div><div class="stat"><span class="sl">📦 Stack</span><span class="sv">1</span></div></div><div class="iobt"><span class="olab">📍 Obtention :</span> Craft avec lingot de chaos</div></div>
+<div class="icard" data-cat="Armure — Chaos"><div class="ih"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAe0lEQVR4Xs2PwQ3AIAwD0xF4Zgj234ZVSo1EFQwkPProSf4ktgMivyPnfEOn85duSCk1WTPPVXUssoYua+K9XDKWsMFeW+3cAlBKmUI2PBXYEsChMAww5ADLLQCr/3LBNgy8V4TXQVs+pl34uMCTWwC8kjDcgXEl9n1CBVt/p9aP7xV7AAAAAElFTkSuQmCC" class="iico"/><div><h3 class="iname">Plastron du Chaos</h3><span class="ibadge">Armure — Chaos</span></div></div><p class="idesc">Protection absolue pour le torse.</p><div class="istats"><div class="stat"><span class="sl">⚔ Durabilité</span><span class="sv">3500</span></div><div class="stat"><span class="sl">🛡 Armure</span><span class="sv">+12.0 Armure (Corps)</span></div><div class="stat"><span class="sl">📦 Stack</span><span class="sv">1</span></div></div><div class="iobt"><span class="olab">📍 Obtention :</span> Craft avec lingot de chaos</div></div>
+<div class="icard" data-cat="Armure — Chaos"><div class="ih"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAWklEQVR4XmNgGHRAV1f3Pz6Mrh4FgBQICgrixCwMDP8lJSVxGwIzAAZAGtAx0QagayTJAHRNZBkgKCAAVwhik2wAskKQ+KgBJBiATSEucQwAUghSAMOExKkCAOXHkbjoQgjNAAAAAElFTkSuQmCC" class="iico"/><div><h3 class="iname">Jambières du Chaos</h3><span class="ibadge">Armure — Chaos</span></div></div><p class="idesc">Jambières quasi-indestructibles.</p><div class="istats"><div class="stat"><span class="sl">⚔ Durabilité</span><span class="sv">3500</span></div><div class="stat"><span class="sl">🛡 Armure</span><span class="sv">+10.0 Armure (Jambes)</span></div><div class="stat"><span class="sl">📦 Stack</span><span class="sv">1</span></div></div><div class="iobt"><span class="olab">📍 Obtention :</span> Craft avec lingot de chaos</div></div>
+<div class="icard" data-cat="Armure — Chaos"><div class="ih"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAbUlEQVR4Xt2RwQ3AMAjEskAWYIDMkWmzJtU9TgLB5Z9a4mMZ2qpj/A8zc87NtSDYe/tay+ec6UDnCwjPOSVUvqCepHxBhcoXVKh8gt/ZhTzAKX8jBljuDsDFJr0Jg26ZwMkGByA4YS8Rm1v3GB9L2HteBc3kJwAAAABJRU5ErkJggg==" class="iico"/><div><h3 class="iname">Bottes du Chaos</h3><span class="ibadge">Armure — Chaos</span></div></div><p class="idesc">Bottes du Chaos pour les pieds.</p><div class="istats"><div class="stat"><span class="sl">⚔ Durabilité</span><span class="sv">3500</span></div><div class="stat"><span class="sl">🛡 Armure</span><span class="sv">+5.0 Armure (Pieds)</span></div><div class="stat"><span class="sl">📦 Stack</span><span class="sv">1</span></div></div><div class="iobt"><span class="olab">📍 Obtention :</span> Craft avec lingot de chaos</div></div>
+<div class="icard" data-cat="Armes — Chaos"><div class="ih"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAEFUlEQVR4Xr1Vy25bVRRNAClWcq99ff2240dskxYJlSSO47jxE8klRAwYgDpI27hNHTcvEzf8ABQkUkElhFAfMAEGlFcHTPgFJAQDKjoARFGFQnj8w2Kvo7iyrpq0oddd0pGvr/c5e+2119nu63sEKJjrOKptIDe0irGBOqacDczobYzrJ2CNtR0ZrY4J7RRybklqrGPCeQLjjjrGtHlMaou9J1AyXsXU4DKavr9wyryFonEdz8U+x7S+gnEhZo23HQXneUwONrAU+g2tw7+iOnwNJeMrjDkW5P3Z3hHI6mcxpTWxmriN9ug2ysFreDb0CSqeyyh73kPe3cSUY7V3BAquNiYGFnEusI31+J+ohj7C89GvUQm+g0r4LeSMJWSMk/YTmBxqYHxwAZuH/sbm6D+YjX0pff8MJf/bKIZeFz+sIOs6jWcGTmLaaNpPIKs1kNWWsBi6hQXvT5iN3kDFvCGSv4my+zIyzgW5BWcw4bD5BkwPtVRVa+lf0AzfRinwAWoRVn5RVLiKGfcaCsaGvUm7kTMayOsttJ78HcuRO6gFpfLAx0JgC0XzXRQ9LSHQtpdAMBjclbSO9uE7kvgPcfuHqHivS78voOjbUv3Om+fsTdwBCeRcS8g51tFK7ODM09+gZH6KgveqVH0JZd8l5PRl5F0r9hMIS3ISWIvtYDHwM15O/SAD5gvp9xVUvVdwxDEv5Br2J+5gZGREETif/hevJHfwYvhHvBS7iar/feQ9F3BkQGa+Pn8wAj6fD7quwzCMPTduPLENLsaQwPFD3+IF//eoRrZw1LiIvHNNJt3mnvv3BZOnksl9NzO52+1GJBJRRI6Pfof5p25ixvsGiuHXkBk6LXO+vu8Z90RSErtcrj2rT4rkqVRKJY0ODyMej6tnLiphXdb994Vf5CeJvTa7nE54vV6V0CnPw0JC1zT45F0ikVDEud+674HhlgP8fr86yBSJrb/THyTBZFSKCigiu62wxv8vRKNRpNNpVSkTdN6bpolAIKDIsf+hUOiu/J3Vfc5DISiJqAQNGRNCsVhMJWdiVk+C/I0xJGzdbwvocC4m7FQYk54zIWWnOiHxCmOse20DTdZxOqvmp8fjAc1qje0JmDQcDivpOyr0TPJuhMVglHdubg7ZTEY903SUnma0xtsODhlet9laDaVSSSlAw1H6uBiSRKx7HgqUlXeZCTiGZ48dQ7VaVfLzBnTiIvKdpmM8vdB9BtvV/f1AYIVMzMWDy+UyalI9pxp/6471SAs4jhNiTqrRIU2y3XEHgsZxKgfdvW5yMPtujetgRK4mvcArynnAGcFPa9wDQ41YGa1M/ljf42q+3+9+R8SUVOdeI/vAoOyGEJBHVRVNRtdb43qG/v5+BMTl7CmJ7P4dPzIC/wFUDBUBCnrjhgAAAABJRU5ErkJggg==" class="iico"/><div><h3 class="iname">Épée du Chaos</h3><span class="ibadge">Armes — Chaos</span></div></div><p class="idesc">L'arme ultime du serveur.</p><div class="istats"><div class="stat"><span class="sl">⚔ Durabilité</span><span class="sv">3500</span></div><div class="stat"><span class="sl">📦 Stack</span><span class="sv">1</span></div></div><div class="iobt"><span class="olab">📍 Obtention :</span> Craft avec lingot de chaos</div></div>
+<div class="icard" data-cat="Minerais"><div class="ih"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA1UlEQVR4XoWSwQ3DMAwDvWN/nSD/+p8RvEKn6RadxQUVXECzDRqASSxLJGW57fs+e+8LFBtjFLZtq+9VXtPLCxJK9LUIqdFeESgI6/MxFxVIKHq/ZuWwLgIsAlSUfL8dyWl/acHtXiFbo53mbECP1Ikr0WMCLhtsXqgeBewLrL8cuHLadrWMUVMEqDJzT8BV9g+KINkBUwC+R9vLRdKGnMDu9l2VmiLwmyW4fcGLcETsPMS0nm38mg5C50Xynt2N4GeQzv6OMQs8T//nTQSMMg8rBYh9AGgMk7TgA/i2AAAAAElFTkSuQmCC" class="iico"/><div><h3 class="iname">Minerai d'Améthyste</h3><span class="ibadge">Minerais</span></div></div><p class="idesc">Minerai violet dans les profondeurs.</p><div class="istats"><div class="stat"><span class="sl">📦 Stack</span><span class="sv">64</span></div></div><div class="iobt"><span class="olab">📍 Obtention :</span> Miner dans les profondeurs</div></div>
+<div class="icard" data-cat="Minerais"><div class="ih"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAy0lEQVR4XoWS6w3EIAyDGZcB+p8RmIOBOk9PjvQh46q6Sr4rIX6k0MYYz3VdB1SbcxZ67/X/1df044SEGn0tQTjaKwEVUdXjLohAuu/7WWvtdQkQEeDizRn/GMHjfiFHY5zmakCP3Kmr0WsCKRtqEBWZ6D4r61cCd87Y7pY1OCWAI2fuDUTP+UEJpDogNga+x9jHRYKEusd3Vzgl4DdL8PiCk0hCbX/EjJ5jcDr+jtG+SCqw6WkQcZIn+3uMSfA+ve+bCDjK/FhpQO0HbTKWIGmg8loAAAAASUVORK5CYII=" class="iico"/><div><h3 class="iname">Minerai de Titane</h3><span class="ibadge">Minerais</span></div></div><p class="idesc">Minerai métallique rare.</p><div class="istats"><div class="stat"><span class="sl">📦 Stack</span><span class="sv">64</span></div></div><div class="iobt"><span class="olab">📍 Obtention :</span> Miner en profondeur</div></div>
+<div class="icard" data-cat="Minerais"><div class="ih"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA3UlEQVR4XoWSsRHDMAwDuWlalynUq0qVQgtkgUyQPutkCPvAu9dBTHwpYFsUAYImo/e+t9YWKDbGSGzblu+zvNDDCRVK9LME4eguBRRE9R7vpQoikJ7xyRzOKYBFQBUlX+KW39X+0oLbPUNtjXbC1cAr9qxOXIkeE3AZqDlRPQrYFzh/OfDK1bZXqzE4KUBVZu4JuKr9gxSo6kDEazwm/I62l0XShZyg7va9KpwU8M0S3L7gJPaC2PyJ1Xpt49d0KDQXiWQfHSKKOcmd/R1jJXievucmAkZZf1YtQOwAN4BxnOVrMTEAAAAASUVORK5CYII=" class="iico"/><div><h3 class="iname">Minerai du Chaos</h3><span class="ibadge">Minerais</span></div></div><p class="idesc">Minerai extrêmement rare.</p><div class="istats"><div class="stat"><span class="sl">📦 Stack</span><span class="sv">64</span></div></div><div class="iobt"><span class="olab">📍 Obtention :</span> Profondeurs extrêmes</div></div>
+<div class="icard" data-cat="Spécial"><div class="ih"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACwklEQVR4XkVTaVfiQBDk0yqHhCNcSUhCDpKQACoqghwiKyseq+vyXJ9vvfb//4famnGPL5nMTE91dVV3KjCycGrbSKwdhEYORvmT3O95BbiNDPY9BbGZgV1Lo2tlYVb+xFoFiLcpsTEqWfTcEmrFNMxaDh27iJamMKgkAzU1i3aziMhSeFeS912nJIFSIpuuZnA/8fBw1sUoNnAzbuP7tI1xYmB97PM8QdetE0zFONZxvm8RNPPBIOInNBXcTfhoHmPUtXAz8nE1aiNxanhbxXiYB9AreQwjTYI0yjmyIUuWlUrMnKTzdtHD0yLAfN+RbN5WHQyCOoF81Eo5CRyYZdT5vxw4PMuiYxBAL2/B0Qt4POtgMw8xSpq4PLJxOwnIoIK2qWIQ6ohbFQKoeFwmWB161IQi17eREqpGFErUuTlNsNizcDd2sT60YdUUDDs6+m4VTkORLDdTH4tdUwrrNqiBqMNu5HFNqtfjAD1mfTrvI7ZV7Pk1TPsMZv1nBx5+LiO8U5Npzya7ErTSFlK+RgudIrM6MuAg1GDXFUm979WRUP3nVRenAxev6z28X3SxJEthvRSxqW5Lz1++9PH8OWI5Kn2u0JkyLAIJLb5OIslmMwvxg6WeH7p0gk3m5pEK9TR2fVVmEY/22w1Mek02lIIxqT4uQrzw7ihsyDKvRnRq10bsqARQkPLYrsLGspLGUacpQVoU7GHmE8ikOzHdiSimIc9Eg10de7QzA19jCU49wwc7tM/g4xIi0r8curifRRSqjleKdj1sodOq4te6h7sTF5NYI4MyItEHopU11iMyOFpBAt2etGVnLun35jTGt2mI2W5LZr8Z++wDFwH74N8sBGYRrq5QtBxB8nKIOjYbRc+jWiRVQ+GalrQjDpLNEuNW+f80ih85ohRUrBJUnHGMPdoc6ARp0K3q9sf+bzwb8DegTXLImS9u0QAAAABJRU5ErkJggg==" class="iico"/><div><h3 class="iname">Crate</h3><span class="ibadge">Spécial</span></div></div><p class="idesc">Caisse mystérieuse avec récompenses aléatoires !</p><div class="istats"><div class="stat"><span class="sl">📦 Stack</span><span class="sv">64</span></div></div><div class="iobt"><span class="olab">📍 Obtention :</span> Événements, boutique, votes</div></div></div>
+    <div class="nores" id="nores"><p style="font-size:2.5rem;margin-bottom:1rem">⚠</p><p style="font-size:.95rem;letter-spacing:2px;font-family:'Share Tech Mono',monospace">AUCUN ITEM TROUVÉ</p></div>
+  </div>
+</div>
+
+<!-- ══ SHOP ══ -->
+<div id="shop" class="page">
+  <div class="sec-head"><h1>BOUTIQUE</h1><div class="divider"></div><p>Améliore ton expérience avec des grades, crates et avantages exclusifs.</p></div>
+  <div class="shop-wrap">
+    <div class="maint-bar">🔧 <span>Paiement Stripe sécurisé — Après achat, ton pseudo Minecraft sera demandé et la commande envoyée au staff.</span></div>
+    <div class="scats">
+      <button class="scb active" data-sc="all"    onclick="sflt(this)">⚔ Tout</button>
+      <button class="scb"        data-sc="grades" onclick="sflt(this)">👑 Grades</button>
+      <button class="scb"        data-sc="crates" onclick="sflt(this)">📦 Crates</button>
+      <button class="scb"        data-sc="boost"  onclick="sflt(this)">⚡ Boosts</button>
+      <button class="scb"        data-sc="cosm"   onclick="sflt(this)">✨ Cosmétiques</button>
+    </div>
+    <div class="sgrid">
+      <div class="scard" data-sc="grades"><span class="sbadge bhot">HOT</span><div class="sban" style="background:linear-gradient(135deg,#0d1829,#1a3a6e)">👑</div><div class="sbody"><div class="sname">VIP</div><div class="sdesc">Préfixe VIP en chat, /fly en zone safe, 5 /home supplémentaires, kit VIP hebdo.</div><div class="sfoot"><div class="sprice">5€<span>/ mois</span></div><button class="sbuy" onclick="openModal('VIP','Grade VIP mensuel — /fly + kit VIP + 5 homes','5€/mois')">ACHETER</button></div></div></div>
+      <div class="scard" data-sc="grades"><span class="sbadge bnew">NEW</span><div class="sban" style="background:linear-gradient(135deg,#0d1829,#4a1a7e)">💎</div><div class="sbody"><div class="sname">ELITE</div><div class="sdesc">Tout le VIP + préfixe animé, 10 /home, kit ELITE, accès ventes privées et crates exclusives.</div><div class="sfoot"><div class="sprice">10€<span>/ mois</span></div><button class="sbuy" onclick="openModal('ELITE','Grade ELITE mensuel — tout VIP + kit ELITE + 10 homes','10€/mois')">ACHETER</button></div></div></div>
+      <div class="scard" data-sc="grades"><div class="sban" style="background:linear-gradient(135deg,#1a0a00,#6e3a00)">🔥</div><div class="sbody"><div class="sname">LEGEND</div><div class="sdesc">Tier ultime. Toutes les fonctionnalités, kit quotidien, rang Discord Legend.</div><div class="sfoot"><div class="sprice">20€<span>/ mois</span></div><button class="sbuy" onclick="openModal('LEGEND','Grade LEGEND mensuel — tier ultime','20€/mois')">ACHETER</button></div></div></div>
+      <div class="scard" data-sc="crates"><div class="sban" style="background:linear-gradient(135deg,#0a1a0a,#0a3a1a)">📦</div><div class="sbody"><div class="sname">CRATE COMMUNE</div><div class="sdesc">Ressources variées, outils, armures de base et quelques surprises.</div><div class="sfoot"><div class="sprice">1€<span>/ unité</span></div><button class="sbuy" onclick="openModal('Crate Commune','1 Crate Commune','1€')">ACHETER</button></div></div></div>
+      <div class="scard" data-sc="crates"><span class="sbadge bhot">HOT</span><div class="sban" style="background:linear-gradient(135deg,#1a1000,#3a2800)">🌟</div><div class="sbody"><div class="sname">CRATE RARE</div><div class="sdesc">Armures améthyste ou titane, lingots rares, boosts temporaires.</div><div class="sfoot"><div class="sprice">3€<span>/ unité</span></div><button class="sbuy" onclick="openModal('Crate Rare','1 Crate Rare','3€')">ACHETER</button></div></div></div>
+      <div class="scard" data-sc="crates"><span class="sbadge bsale">RARE</span><div class="sban" style="background:linear-gradient(135deg,#10001a,#2a0050)">⚡</div><div class="sbody"><div class="sname">CRATE CHAOS</div><div class="sdesc">Chance d'obtenir équipement en Chaos, lingots du Chaos, items exclusifs.</div><div class="sfoot"><div class="sprice">7€<span>/ unité</span></div><button class="sbuy" onclick="openModal('Crate Chaos','1 Crate Chaos','7€')">ACHETER</button></div></div></div>
+      <div class="scard" data-sc="boost"><div class="sban" style="background:linear-gradient(135deg,#0a1520,#001a3a)">⚡</div><div class="sbody"><div class="sname">BOOST XP x2</div><div class="sdesc">Double ton gain d'XP pendant 24h.</div><div class="sfoot"><div class="sprice">2€<span>/ 24h</span></div><button class="sbuy" onclick="openModal('Boost XP x2','Boost XP x2 pendant 24h','2€')">ACHETER</button></div></div></div>
+      <div class="scard" data-sc="boost"><div class="sban" style="background:linear-gradient(135deg,#1a0a0a,#3a0010)">💰</div><div class="sbody"><div class="sname">BOOST COINS x2</div><div class="sdesc">Double tes gains de monnaie in-game pendant 24h.</div><div class="sfoot"><div class="sprice">2€<span>/ 24h</span></div><button class="sbuy" onclick="openModal('Boost Coins x2','Boost Coins x2 pendant 24h','2€')">ACHETER</button></div></div></div>
+      <div class="scard" data-sc="boost"><span class="sbadge bsale">-20%</span><div class="sban" style="background:linear-gradient(135deg,#0a1a0a,#003a10)">🛡️</div><div class="sbody"><div class="sname">PACK BOOST SEMAINE</div><div class="sdesc">XP x2 + Coins x2 pendant 7 jours complets.</div><div class="sfoot"><div class="sprice">8€<span>/ 7j</span></div><button class="sbuy" onclick="openModal('Pack Boost Semaine','XP x2 + Coins x2 pendant 7 jours','8€')">ACHETER</button></div></div></div>
+      <div class="scard" data-sc="cosm"><span class="sbadge bnew">NEW</span><div class="sban" style="background:linear-gradient(135deg,#0a0a1a,#10003a)">🎨</div><div class="sbody"><div class="sname">TAG CUSTOM</div><div class="sdesc">Préfixe personnalisé devant ton pseudo (5 car. max, validation staff).</div><div class="sfoot"><div class="sprice">4€<span>/ permanent</span></div><button class="sbuy" onclick="openModal('Tag Custom','Tag personnalisé permanent','4€')">ACHETER</button></div></div></div>
+      <div class="scard" data-sc="cosm"><div class="sban" style="background:linear-gradient(135deg,#1a1000,#2a2000)">🎵</div><div class="sbody"><div class="sname">PARTICULES</div><div class="sdesc">Effets de particules autour de ton personnage.</div><div class="sfoot"><div class="sprice">3€<span>/ permanent</span></div><button class="sbuy" onclick="openModal('Particules','Effets particules permanent','3€')">ACHETER</button></div></div></div>
+      <div class="scard" data-sc="cosm"><span class="sbadge bsoon">BIENTÔT</span><div class="sban" style="background:linear-gradient(135deg,#0a0a0a,#1a1a1a)">🗡️</div><div class="sbody"><div class="sname">SKIN D'ARME</div><div class="sdesc">Reskin visuel de tes armes. En développement.</div><div class="sfoot"><div class="sprice">???</div><button class="sbuy" disabled>BIENTÔT</button></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ RECRUTEMENT MODÉRATEUR ══ -->
+<div id="recruit" class="page">
+  <div class="sec-head"><h1>RECRUTEMENT MODÉRATEUR</h1><div class="divider"></div><p>Tu veux devenir modérateur sur ForgiumMC ? Remplis ce formulaire complet — un admin te contactera sur Discord dans les 48h.</p></div>
+  <div class="rec-wrap">
+    <form id="recForm" onsubmit="sendRecruit(event)">
+      <div class="rec-form">
+        <div class="fgrid">
+
+          <div class="fsectitle">// 01 — PROFIL</div>
+          <div class="fg"><label class="flbl">Pseudo Minecraft <span class="req">*</span></label><input class="finput" id="f-mc" type="text" placeholder="TonPseudo" maxlength="16" required></div>
+          <div class="fg"><label class="flbl">Âge <span class="req">*</span></label><input class="finput" id="f-age" type="number" placeholder="16" min="13" max="60" required></div>
+          <div class="fg"><label class="flbl">Tag Discord <span class="req">*</span></label><input class="finput" id="f-dc" type="text" placeholder="@pseudo" required></div>
+          <div class="fg"><label class="flbl">Pays / Timezone</label><input class="finput" id="f-tz" type="text" placeholder="France, UTC+1"></div>
+
+          <div class="fdivider"></div>
+          <div class="fsectitle">// 02 — DISPONIBILITÉ</div>
+          <div class="fg"><label class="flbl">Heures dispo / semaine <span class="req">*</span></label>
+            <select class="fselect" id="f-dispo" required>
+              <option value="">-- Choisir --</option>
+              <option>Moins de 5h</option><option>5h à 10h</option><option>10h à 20h</option><option>20h+</option>
+            </select>
+          </div>
+          <div class="fg"><label class="flbl">Plages horaires habituelles</label><input class="finput" id="f-horaires" placeholder="Ex: 17h-22h semaine, matin WE"></div>
+          <div class="fg span2"><label class="flbl">Jours disponibles</label>
+            <div class="toggle-group">
+              <span class="tgl" onclick="tgl(this)">Lundi</span><span class="tgl" onclick="tgl(this)">Mardi</span><span class="tgl" onclick="tgl(this)">Mercredi</span><span class="tgl" onclick="tgl(this)">Jeudi</span><span class="tgl" onclick="tgl(this)">Vendredi</span><span class="tgl" onclick="tgl(this)">Samedi</span><span class="tgl" onclick="tgl(this)">Dimanche</span>
+            </div>
+          </div>
+
+          <div class="fdivider"></div>
+          <div class="fsectitle">// 03 — POSTE & EXPÉRIENCE</div>
+          <div class="fg span2"><label class="flbl">Poste demandé <span class="req">*</span></label>
+            <div class="radio-group">
+              <label class="rlbl" onclick="pick(this)"><input type="radio" name="f-poste" value="Modérateur Chat (In-game)"><span>💬 Modérateur Chat</span></label>
+              <label class="rlbl" onclick="pick(this)"><input type="radio" name="f-poste" value="Modérateur Discord"><span>🎮 Modérateur Discord</span></label>
+              <label class="rlbl" onclick="pick(this)"><input type="radio" name="f-poste" value="Les deux (Chat + Discord)"><span>⚔ Les deux</span></label>
+            </div>
+          </div>
+          <div class="fg span2"><label class="flbl">Expérience modération</label>
+            <div class="radio-group">
+              <label class="rlbl" onclick="pick(this)"><input type="radio" name="f-expmod" value="Expérimenté (2+ serveurs)"><span>✅ Expérimenté (2+ serveurs)</span></label>
+              <label class="rlbl" onclick="pick(this)"><input type="radio" name="f-expmod" value="Quelques expériences"><span>🔰 Quelques expériences</span></label>
+              <label class="rlbl" onclick="pick(this)"><input type="radio" name="f-expmod" value="Première fois"><span>❌ Première fois</span></label>
+            </div>
+          </div>
+          <div class="fg span2"><label class="flbl">Compétences / qualités — Coche tout ce qui te correspond</label>
+            <div class="check-group">
+              <label class="chk-lbl"><input type="checkbox" name="skills" value="Calme et patient"> 🧘 Calme et patient même sous pression</label>
+              <label class="chk-lbl"><input type="checkbox" name="skills" value="Bonne communication"> 🗣️ Bonne communication et diplomatie</label>
+              <label class="chk-lbl"><input type="checkbox" name="skills" value="Connaissance des règles"> 📋 Excellente connaissance des règles Faction</label>
+              <label class="chk-lbl"><input type="checkbox" name="skills" value="Disponible rapidement"> ⚡ Capable d'intervenir rapidement</label>
+              <label class="chk-lbl"><input type="checkbox" name="skills" value="Bonne gestion des conflits"> ⚖️ Bonne gestion des conflits entre joueurs</label>
+              <label class="chk-lbl"><input type="checkbox" name="skills" value="Impartial"> 🏛️ Impartial même avec mes amis</label>
+              <label class="chk-lbl"><input type="checkbox" name="skills" value="Expérience Minecraft avancée"> ⛏️ Expérience Minecraft avancée</label>
+              <label class="chk-lbl"><input type="checkbox" name="skills" value="Actif sur Discord"> 💬 Très actif sur Discord</label>
+            </div>
+          </div>
+          <div class="fg"><label class="flbl">Niveau PvP (1-10)</label>
+            <div class="star-group" id="pvpStars">
+              <button type="button" class="star-btn" onclick="setPvp(1)">1</button><button type="button" class="star-btn" onclick="setPvp(2)">2</button><button type="button" class="star-btn" onclick="setPvp(3)">3</button><button type="button" class="star-btn" onclick="setPvp(4)">4</button><button type="button" class="star-btn" onclick="setPvp(5)">5</button><button type="button" class="star-btn" onclick="setPvp(6)">6</button><button type="button" class="star-btn" onclick="setPvp(7)">7</button><button type="button" class="star-btn" onclick="setPvp(8)">8</button><button type="button" class="star-btn" onclick="setPvp(9)">9</button><button type="button" class="star-btn" onclick="setPvp(10)">10</button>
+            </div>
+          </div>
+          <div class="fg"><label class="flbl">Connais-tu les règles du serveur ?</label>
+            <div class="radio-group">
+              <label class="rlbl" onclick="pick(this)"><input type="radio" name="f-rules" value="Oui, parfaitement"><span>✅ Oui, parfaitement</span></label>
+              <label class="rlbl" onclick="pick(this)"><input type="radio" name="f-rules" value="Globalement oui"><span>🔰 Globalement</span></label>
+              <label class="rlbl" onclick="pick(this)"><input type="radio" name="f-rules" value="Pas encore, je vais les lire"><span>📖 Je vais les lire</span></label>
+            </div>
+          </div>
+
+          <div class="fdivider"></div>
+          <div class="fsectitle">// 04 — SCÉNARIOS & MOTIVATION</div>
+          <div class="fg span2"><label class="flbl">Scénario : Un joueur spam le chat et insulte. Que fais-tu ? <span class="req">*</span></label><textarea class="ftarea" id="f-sc1" placeholder="Décris ta réaction étape par étape..." required></textarea></div>
+          <div class="fg span2"><label class="flbl">Scénario : Un joueur ami à toi enfreint les règles. Comment tu gères ? <span class="req">*</span></label><textarea class="ftarea" id="f-sc2" placeholder="Tes amis ne sont pas au-dessus des règles..." required></textarea></div>
+          <div class="fg span2"><label class="flbl">Pourquoi veux-tu devenir modérateur sur ForgiumMC ? <span class="req">*</span></label><textarea class="ftarea" id="f-why" placeholder="Ta motivation, ce que tu apporterais à l'équipe..." required></textarea></div>
+          <div class="fg span2"><label class="flbl">Infos supplémentaires</label><textarea class="ftarea" id="f-extra" placeholder="Langues parlées, expériences admin, streamer, etc."></textarea></div>
+
+        </div>
+        <div class="fsubmit">
+          <button type="submit" class="subbtn" id="subbtn">ENVOYER MA CANDIDATURE</button>
+          <p class="subnote">Ta candidature sera envoyée sur notre Discord. Un admin te contactera dans les 24-48h. Sois honnête !</p>
+        </div>
+        <div class="fstatus" id="fstatus"></div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<footer>
+  <span class="flogo">FORGIUMMC</span>
+  <p>Serveur Minecraft PvP Faction · Communauté FR</p>
+  <div class="fip" onclick="copyIP()">⚡ play.forgium.fr</div>
+  <a class="fdisc" href="https://discord.gg/GgPjh9KFc9" target="_blank">
+    <svg width="18" height="18" viewBox="0 0 71 55" fill="#7289da"><path d="M60.1 4.9A58.5 58.5 0 0 0 45.5.4a40 40 0 0 0-1.8 3.6 54.2 54.2 0 0 0-16.2 0A37.5 37.5 0 0 0 25.7.4 58.4 58.4 0 0 0 11 4.9C1.6 18.8-1 32.3.3 45.6a58.8 58.8 0 0 0 17.9 9 42.3 42.3 0 0 0 3.7-6 38.4 38.4 0 0 1-5.9-2.8l1.4-1.1a42 42 0 0 0 35.8 0l1.4 1.1a38.3 38.3 0 0 1-5.9 2.8 42.4 42.4 0 0 0 3.7 6 58.7 58.7 0 0 0 17.9-9C72 30.3 68.5 16.9 60.1 4.9ZM23.7 37.6c-3.5 0-6.4-3.2-6.4-7.1s2.8-7.1 6.4-7.1c3.5 0 6.4 3.2 6.4 7.1s-2.9 7.1-6.4 7.1Zm23.6 0c-3.5 0-6.4-3.2-6.4-7.1s2.8-7.1 6.4-7.1c3.5 0 6.4 3.2 6.4 7.1s-2.9 7.1-6.4 7.1Z"/></svg>
+    discord.gg/GgPjh9KFc9
+  </a>
+  <p style="margin-top:1.2rem;font-size:.72rem;letter-spacing:2px">© 2024 FORGIUMMC — TOUS DROITS RÉSERVÉS</p>
+</footer>
+
+<script>
+// PARTICLES
+(function(){
+  const c=document.getElementById("particles");
+  const sh=["▸","◆","▪","✦","·","▹"];
+  const cl=["#00aaff","#00d4ff","#0077cc","#00ffcc","rgba(0,170,255,.4)"];
+  for(let i=0;i<55;i++){
+    const p=document.createElement("div");p.className="particle";
+    p.style.cssText=`left:${Math.random()*100}%;font-size:${Math.random()*13+4}px;color:${cl[Math.floor(Math.random()*cl.length)]};animation-duration:${12+Math.random()*22}s;animation-delay:${-Math.random()*32}s;`;
+    p.textContent=sh[Math.floor(Math.random()*sh.length)];c.appendChild(p);
+  }
+})();
+
+// NAV
+function show(id){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  const ids=["home","rules","wiki","shop","recruit"];
+  document.querySelectorAll(".nav-links a").forEach((a,i)=>a.classList.toggle("active",ids[i]===id));
+  window.scrollTo(0,0);
+}
+function copyIP(){
+  navigator.clipboard.writeText("play.forgium.fr").then(()=>{
+    const t=document.getElementById("toast");t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2500);
+  });
+}
+
+// WIKI
+let wcat="all";
+function flt(btn,cat){
+  document.querySelectorAll(".cb").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");wcat=cat;wfilt();
+}
+function wfilt(){
+  const q=(document.getElementById("wsearch")?.value||"").toLowerCase();let vis=0;
+  document.querySelectorAll(".icard").forEach(c=>{
+    const n=c.querySelector(".iname")?.textContent.toLowerCase()||"";
+    const d=c.querySelector(".idesc")?.textContent.toLowerCase()||"";
+    const cat=c.dataset.cat||"";
+    const ok=(!q||n.includes(q)||d.includes(q))&&(wcat==="all"||cat===wcat);
+    c.style.display=ok?"":"none";if(ok)vis++;
+  });
+  document.getElementById("nores").classList.toggle("show",vis===0);
+}
+
+// SHOP FILTER
+function sflt(btn){
+  document.querySelectorAll(".scb").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");const sc=btn.dataset.sc;
+  document.querySelectorAll(".scard").forEach(c=>{c.style.display=(sc==="all"||c.dataset.sc===sc)?"":"none";});
+}
+
+// SHOP MODAL
+let _curItem="",_curPrice="";
+function openModal(name,desc,price){
+  _curItem=name;_curPrice=price;
+  document.getElementById("mTitle").textContent="ACHETER — "+name;
+  document.getElementById("mItem").textContent=desc;
+  document.getElementById("mPrice").textContent=price;
+  document.getElementById("m-mc").value="";
+  document.getElementById("m-dc").value="";
+  document.getElementById("m-email").value="";
+  document.getElementById("mStatus").className="mstatus";
+  document.getElementById("mPayBtn").disabled=false;
+  document.getElementById("mPayBtn").textContent="💳 PROCÉDER AU PAIEMENT";
+  document.getElementById("shopModal").classList.add("open");
+}
+function closeModal(){document.getElementById("shopModal").classList.remove("open");}
+document.getElementById("shopModal").addEventListener("click",function(e){if(e.target===this)closeModal();});
+
+async function processPayment(){
+  const mc=document.getElementById("m-mc").value.trim();
+  const dc=document.getElementById("m-dc").value.trim();
+  const email=document.getElementById("m-email").value.trim();
+  const st=document.getElementById("mStatus");
+  const btn=document.getElementById("mPayBtn");
+  if(!mc||!dc||!email){st.className="mstatus err";st.textContent="⚠ Remplis tous les champs avant de continuer.";return;}
+  btn.disabled=true;btn.innerHTML='<span class="spinner" style="border:2px solid rgba(0,0,0,.3);border-top-color:#000;"></span>ENVOI...';
+  const embed={
+    title:`🛒 Nouvelle commande — ${_curItem}`,color:0xffcc00,
+    fields:[
+      {name:"🛍️ Article",value:`${_curItem} (${_curPrice})`,inline:false},
+      {name:"⛏️ Pseudo Minecraft",value:mc,inline:true},
+      {name:"💬 Discord",value:dc,inline:true},
+      {name:"📧 Email",value:email,inline:true},
+      {name:"💳 Paiement",value:"En attente Stripe — À confirmer manuellement",inline:false},
+    ],
+    footer:{text:"ForgiumMC — Commande reçue via le site"},
+    timestamp:new Date().toISOString()
+  };
+  try{
+    const res=await fetch("https://discord.com/api/webhooks/1477763929533845665/U60wyrutYHAOOJcfK54oALQ8PovadF3KLn7rXzViQTGUBryJs1BFUNaW4_lTN9Rqvolk",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:"ForgiumMC Shop",embeds:[embed]})});
+    if(res.ok){
+      st.className="mstatus ok";st.textContent="✅ Commande enregistrée ! Un admin va te contacter sur Discord pour finaliser le paiement Stripe.";
+      btn.textContent="✔ COMMANDE ENREGISTRÉE";
+    }else{throw new Error();}
+  }catch{
+    st.className="mstatus err";st.textContent="❌ Erreur. Contacte-nous directement sur Discord.";
+    btn.disabled=false;btn.textContent="💳 PROCÉDER AU PAIEMENT";
+  }
+}
+
+// RECRUIT HELPERS
+function pick(lbl){
+  const name=lbl.querySelector("input").name;
+  document.querySelectorAll(`input[name="${name}"]`).forEach(i=>i.closest(".rlbl").classList.remove("checked"));
+  lbl.classList.add("checked");lbl.querySelector("input").checked=true;
+}
+function tgl(el){el.classList.toggle("on");}
+let _pvp=0;
+function setPvp(n){
+  _pvp=n;
+  document.querySelectorAll("#pvpStars .star-btn").forEach((b,i)=>b.classList.toggle("on",i<n));
+}
+
+// SEND RECRUIT
+async function sendRecruit(e){
+  e.preventDefault();
+  const btn=document.getElementById("subbtn");
+  const st=document.getElementById("fstatus");
+  const mc=document.getElementById("f-mc").value.trim();
+  const age=document.getElementById("f-age").value.trim();
+  const dc=document.getElementById("f-dc").value.trim();
+  const tz=document.getElementById("f-tz").value.trim();
+  const dispo=document.getElementById("f-dispo").value;
+  const horaires=document.getElementById("f-horaires").value.trim();
+  const jours=[...document.querySelectorAll(".toggle-group .tgl.on")].map(t=>t.textContent).join(", ")||"Non précisé";
+  const poste=document.querySelector("input[name='f-poste']:checked")?.value||"Non précisé";
+  const expmod=document.querySelector("input[name='f-expmod']:checked")?.value||"Non précisé";
+  const skills=[...document.querySelectorAll("input[name='skills']:checked")].map(c=>c.value).join("\n• ")||"Aucune cochée";
+  const rulesKnow=document.querySelector("input[name='f-rules']:checked")?.value||"Non précisé";
+  const sc1=document.getElementById("f-sc1").value.trim();
+  const sc2=document.getElementById("f-sc2").value.trim();
+  const why=document.getElementById("f-why").value.trim();
+  const extra=document.getElementById("f-extra").value.trim();
+  if(!mc||!age||!dc||!dispo||!sc1||!sc2||!why){st.className="fstatus err";st.textContent="⚠ Remplis tous les champs obligatoires.";return;}
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span>ENVOI EN COURS...';
+  st.className="fstatus";st.textContent="";
+  const embed={
+    title:`🛡 Candidature Modérateur — ${mc}`,color:0x00aaff,
+    thumbnail:{url:`https://mc-heads.net/avatar/${encodeURIComponent(mc)}`},
+    fields:[
+      {name:"👤 Pseudo MC",value:mc,inline:true},{name:"🎂 Âge",value:age,inline:true},{name:"💬 Discord",value:dc,inline:true},
+      {name:"🌍 Timezone",value:tz||"Non précisé",inline:true},{name:"⏱ Dispo/semaine",value:dispo,inline:true},{name:"🕐 Horaires",value:horaires||"Non précisé",inline:true},
+      {name:"📅 Jours",value:jours,inline:false},
+      {name:"🛡 Poste demandé",value:poste,inline:true},{name:"📋 Exp. modération",value:expmod,inline:true},
+      {name:"🎯 Niveau PvP",value:_pvp?`${_pvp}/10`:"Non évalué",inline:true},
+      {name:"📖 Connaissance règles",value:rulesKnow,inline:true},
+      {name:"✅ Compétences cochées",value:skills?"• "+skills:"Aucune",inline:false},
+      {name:"⚔ Scénario 1 — Spam/insult",value:sc1,inline:false},
+      {name:"⚔ Scénario 2 — Ami en faute",value:sc2,inline:false},
+      {name:"💡 Motivation",value:why,inline:false},
+    ],
+    footer:{text:"ForgiumMC — Candidature Modérateur"},
+    timestamp:new Date().toISOString()
+  };
+  if(extra) embed.fields.push({name:"➕ Infos sup.",value:extra,inline:false});
+  try{
+    const res=await fetch("https://discord.com/api/webhooks/1477755911287214131/XQgQzvqDWBn4-u-VrDiHHHu7TQ9-88y_oF4rllhstrTyoJNb-sPI6MtBQgvm-quoPHOo",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:"ForgiumMC Recrutement",embeds:[embed]})});
+    if(res.ok){
+      st.className="fstatus ok";st.textContent="✅ Candidature envoyée ! Un admin te contactera sur Discord dans les 24-48h.";
+      document.getElementById("recForm").reset();
+      document.querySelectorAll(".rlbl,.tgl").forEach(l=>l.classList.remove("checked","on"));
+      document.querySelectorAll("#pvpStars .star-btn").forEach(b=>b.classList.remove("on"));_pvp=0;
+      btn.innerHTML="✔ ENVOYÉ";setTimeout(()=>{btn.disabled=false;btn.textContent="ENVOYER MA CANDIDATURE";},6000);
+    }else{throw new Error();}
+  }catch{
+    st.className="fstatus err";st.textContent="❌ Erreur. Contacte-nous directement sur Discord.";
+    btn.disabled=false;btn.textContent="ENVOYER MA CANDIDATURE";
+  }
+}
+</script>
+</body>
+</html>
